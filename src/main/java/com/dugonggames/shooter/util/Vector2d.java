@@ -1,8 +1,10 @@
 package com.dugonggames.shooter.util;
 
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
+@ToString
 public class Vector2d {
     public final double x;
     public final double y;
@@ -41,7 +43,8 @@ public class Vector2d {
 
     public double dotProduct(Vector2d other) { return dotProduct(this,other); }
 
-    public String toString(){
-        return "x: " + x + "\ny: " + y;
+    public Vector2d normalize(){
+        return scale(1/Math.sqrt(lengthSq()));
     }
+
 }
