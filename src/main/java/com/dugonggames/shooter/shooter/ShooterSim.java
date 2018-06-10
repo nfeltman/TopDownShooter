@@ -33,7 +33,7 @@ public class ShooterSim{
         if (s.sPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y + s.speed);
         if (s.dPressed) nextLoc = new Vector2d(nextLoc.x + s.speed, nextLoc.y);
 
-        ArrayList<MovingPoint> nextBullets = new ArrayList();
+        ArrayList<MovingPoint> nextBullets = new ArrayList<>();
         for (MovingPoint bullet : s.bullets) {
             if (bullet.location.x >= 0 && bullet.location.x <= width && bullet.location.y >= 0 && bullet.location.y <= height)
                 nextBullets.add(bullet.step(dt));
@@ -76,7 +76,7 @@ public class ShooterSim{
             nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20));
         }
 
-        ArrayList<MovingPoint> yourNextBullets = new ArrayList();
+        ArrayList<MovingPoint> yourNextBullets = new ArrayList<>();
 
         for (MouseEvent event : mouseClicks){
             if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)){
@@ -87,23 +87,23 @@ public class ShooterSim{
             }
         }
 
-        for (int i = 0; i < yourNextBullets.size(); i++){
+        for (int i = 0; i < s.yourBullets.size(); i++){
             boolean collided = false;
             for (int j = 0; j < nextBullets.size(); j++){
-                if (Vector2d.distance(yourNextBullets.get(i).location, nextBullets.get(j).location) < 4)
+                if (Vector2d.distance(s.yourBullets.get(i).location, nextBullets.get(j).location) < 4)
                     nextBullets.remove(j);
             }
             for (int j = 0; j < nextShips.size(); j++){
-                if (Math.abs(yourNextBullets.get(i).location.x - nextShips.get(j).getLocation().location.x) < 100 && Math.abs(yourNextBullets.get(i).location.y - nextShips.get(j).getLocation().location.y) < 50 ){
+                if (Math.abs(s.yourBullets.get(i).location.x - nextShips.get(j).getLocation().location.x) < 100 && Math.abs(s.yourBullets.get(i).location.y - nextShips.get(j).getLocation().location.y) < 50 ){
                     nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - 1));
                     if (nextShips.get(j).getHealth() <= 0){
                         nextShips.remove(j);
-                        collided = true;
                     }
+                    collided = true;
                 }
             }
-            if (yourNextBullets.get(i).location.x >= 0 && yourNextBullets.get(i).location.x <= width && yourNextBullets.get(i).location.y >= 0 && yourNextBullets.get(i).location.y <= height && !collided)
-                yourNextBullets.add(yourNextBullets.get(i).step(dt));
+            if (s.yourBullets.get(i).location.x >= 0 && s.yourBullets.get(i).location.x <= width && s.yourBullets.get(i).location.y >= 0 && s.yourBullets.get(i).location.y <= height && !collided)
+                yourNextBullets.add(s.yourBullets.get(i).step(dt));
         }
 
         ArrayList<Vector2d> nextSpeedPwLocs = s.speedPwLocs;
