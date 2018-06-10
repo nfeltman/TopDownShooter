@@ -180,11 +180,16 @@ public class ShooterSim{
         gc.setFill(Color.WHITE);
         gc.fillText(s.bulletsDodged + "", 20, 20);
         gc.fillText("Max: " + s.maxDodged, 100, 20);
-        gc.setFill(Color.RED);
         for (Ship ship : s.ships){
+            gc.setFill(Color.GRAY);
             double x = ship.getLocation().location.x;
             double y = ship.getLocation().location.y;
+            double health = ship.getHealth();
             gc.fillRect(x-100, y-50, 200, 100);
+            gc.setFill(Color.RED);
+            gc.fillRect(x - 100, y - 70, 200, 10);
+            gc.setFill(Color.GREEN);
+            gc.fillRect(x - 100, y - 70, 200 * (health/20), 10);
         }
         gc.setFill(Color.LIGHTGREEN);
         for (Vector2d speedPw : s.speedPwLocs)
