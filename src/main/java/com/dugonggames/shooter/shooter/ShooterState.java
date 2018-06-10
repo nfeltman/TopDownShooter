@@ -20,5 +20,12 @@ public class ShooterState {
     int maxDodged;
     ArrayList<MovingPoint> yourBullets;
     ArrayList<Ship> ships;
+    int bulletTimer;
+    int shipTimer;
+    int pwTimer;
+    int speedBoostTime;
+    ArrayList<Vector2d> speedPwLocs;
+    int shieldBoostTime;
+    ArrayList<Vector2d> shieldPwLocs;
 
 }
