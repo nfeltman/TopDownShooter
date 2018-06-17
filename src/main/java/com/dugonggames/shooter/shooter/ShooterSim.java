@@ -8,25 +8,28 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
 
 import java.util.ArrayList;
 
 public class ShooterSim{
 
     public ShooterState init(int width, int height) {
-        return new ShooterState(0, new Vector2d(width/2, height/2), 2, false, false, false, false, new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>());
+        return new ShooterState(0, new Vector2d(width/2, height/2), 2, false, false, false, false, new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(), false);
     }
 
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
+        boolean paused = s.paused;
         Vector2d nextLoc = s.location;
         double nextTime = s.time + dt;
-        int nextBulletsDodged = s.bulletsDodged;
+        int nextScore = s.score + 1;
         for (KeyEvent k : keyPresses){
             s.wPressed = isPressed(KeyCode.W, k, s.wPressed);
             s.aPressed = isPressed(KeyCode.A, k, s.aPressed);
             s.sPressed = isPressed(KeyCode.S, k, s.sPressed);
             s.dPressed = isPressed(KeyCode.D, k, s.dPressed);
+            if (isPressed(KeyCode.ESCAPE, k, false)) paused = !paused;
         }
         if (s.wPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y - s.speed);
         if (s.aPressed) nextLoc = new Vector2d(nextLoc.x - s.speed, nextLoc.y );
@@ -37,13 +40,10 @@ public class ShooterSim{
         for (MovingPoint bullet : s.bullets) {
             if (bullet.location.x >= 0 && bullet.location.x <= width && bullet.location.y >= 0 && bullet.location.y <= height)
                 nextBullets.add(bullet.step(dt));
-            else {
-                nextBulletsDodged++;
-            }
             if (Vector2d.distance(bullet.location, s.location) < 6.5 && s.shieldBoostTime == 0) {
                 nextBullets.clear();
                 nextTime = 0;
-                nextBulletsDodged = 0;
+                nextScore = 0;
                 break;
             }
         }
@@ -94,15 +94,16 @@ public class ShooterSim{
                     nextBullets.remove(j);
             }
             for (int j = 0; j < nextShips.size(); j++){
-                if (Math.abs(s.yourBullets.get(i).location.x - nextShips.get(j).getLocation().location.x) < 100 && Math.abs(s.yourBullets.get(i).location.y - nextShips.get(j).getLocation().location.y) < 50 ){
+                if ((s.yourBullets.get(i).location.subtract(nextShips.get(j).getLocation().location)).add(new Vector2d(100, 50)).inBox(200, 100)){
                     nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - 1));
                     if (nextShips.get(j).getHealth() <= 0){
                         nextShips.remove(j);
+                        nextScore += 500;
                     }
                     collided = true;
                 }
             }
-            if (s.yourBullets.get(i).location.x >= 0 && s.yourBullets.get(i).location.x <= width && s.yourBullets.get(i).location.y >= 0 && s.yourBullets.get(i).location.y <= height && !collided)
+            if (s.yourBullets.get(i).location.inBox(width, height) && !collided)
                 yourNextBullets.add(s.yourBullets.get(i).step(dt));
         }
 
@@ -135,7 +136,19 @@ public class ShooterSim{
             }
         }
 
-        return new ShooterState(nextTime, nextLoc, nextSpeed, s.wPressed, s.aPressed, s.sPressed, s.dPressed, nextBullets, nextBulletsDodged, Math.max(nextBulletsDodged, s.maxDodged), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, (s.shipTimer + 1) % 500, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs);
+        int nextShipTimer = s.shipTimer + 1;
+        if (nextScore <= 2500) nextShipTimer %= 500;
+        else if (nextScore <= 5000) nextShipTimer %= 400;
+        else if (nextScore <= 7500) nextShipTimer %= 300;
+        else if (nextScore <= 10000) nextShipTimer %= 250;
+        else nextShipTimer %= 200;
+
+        if (!paused)
+            return new ShooterState(nextTime, nextLoc, nextSpeed, s.wPressed, s.aPressed, s.sPressed, s.dPressed, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, false);
+        else {
+            s.paused = true;
+            return s;
+        }
     }
 
     private MovingPoint makeBullet(Vector2d target, Vector2d origin){
@@ -160,6 +173,11 @@ public class ShooterSim{
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, width, height);
 
+        gc.setFill(Color.YELLOW);
+        gc.fillArc(s.location.x - 25, s.location.y - 25, 50, 50 , 5, ((((double) s.speedBoostTime) / 500) * 360), ArcType.ROUND);
+        gc.setFill(Color.BLACK);
+        gc.fillArc(s.location.x - 20, s.location.y - 20, 40, 40 , 0, ((((double) s.speedBoostTime) / 500) * 360), ArcType.ROUND);
+
         if (s.shieldBoostTime % 50 > 10){
             gc.setFill(Color.GRAY);
             gc.fillOval(s.location.x - 13, s.location.y - 13, 26, 26);
@@ -178,8 +196,8 @@ public class ShooterSim{
             gc.fillOval(bullet.location.x, bullet.location.y, 5, 5);
         }
         gc.setFill(Color.WHITE);
-        gc.fillText(s.bulletsDodged + "", 20, 20);
-        gc.fillText("Max: " + s.maxDodged, 100, 20);
+        gc.fillText(s.score + "", 20, 20);
+        gc.fillText("Max: " + s.maxScore, 100, 20);
         for (Ship ship : s.ships){
             gc.setFill(Color.GRAY);
             double x = ship.getLocation().location.x;
@@ -191,12 +209,17 @@ public class ShooterSim{
             gc.setFill(Color.GREEN);
             gc.fillRect(x - 100, y - 70, 200 * (health/20), 10);
         }
-        gc.setFill(Color.LIGHTGREEN);
+        gc.setFill(Color.YELLOW);
         for (Vector2d speedPw : s.speedPwLocs)
             gc.fillOval(speedPw.x - 3, speedPw.y - 3, 6, 6);
 
         gc.setFill(Color.GRAY);
         for (Vector2d shieldPw : s.shieldPwLocs)
             gc.fillOval(shieldPw.x - 3, shieldPw.y - 3, 6, 6);
+        gc.setFill(Color.DARKRED);
+        if (s.paused){
+            gc.fillRect(width/2 - 100, height/2 - 150, 50, 300);
+            gc.fillRect(width/2 + 50, height/2 - 150, 50, 300);
+        }
     }
 }

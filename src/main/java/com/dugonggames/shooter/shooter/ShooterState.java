@@ -16,8 +16,8 @@ public class ShooterState {
     boolean sPressed;
     boolean dPressed;
     ArrayList<MovingPoint> bullets;
-    int bulletsDodged;
-    int maxDodged;
+    int score;
+    int maxScore;
     ArrayList<MovingPoint> yourBullets;
     ArrayList<Ship> ships;
     int bulletTimer;
@@ -27,5 +27,6 @@ public class ShooterState {
     ArrayList<Vector2d> speedPwLocs;
     int shieldBoostTime;
     ArrayList<Vector2d> shieldPwLocs;
+    boolean paused;
 
 }

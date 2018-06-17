@@ -47,4 +47,8 @@ public class Vector2d {
         return scale(1/Math.sqrt(lengthSq()));
     }
 
+    public boolean inBox(double width, double height){
+        return x >= 0 && y >= 0 && x <= width && y <= height;
+    }
+
 }
