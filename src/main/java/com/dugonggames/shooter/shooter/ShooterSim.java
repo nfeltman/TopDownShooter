@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class ShooterSim{
 
     public ShooterState init(int width, int height) {
+        GameImages.loadImages();
         return new ShooterState(0, new Vector2d(width/2, height/2), 2, false, false, false, false, new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(), false);
     }
 
@@ -94,7 +95,7 @@ public class ShooterSim{
                     nextBullets.remove(j);
             }
             for (int j = 0; j < nextShips.size(); j++){
-                if ((s.yourBullets.get(i).location.subtract(nextShips.get(j).getLocation().location)).add(new Vector2d(100, 50)).inBox(200, 100)){
+                if (Vector2d.distance(s.yourBullets.get(i).location, nextShips.get(j).getLocation().location) <= 120){
                     nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - 1));
                     if (nextShips.get(j).getHealth() <= 0){
                         nextShips.remove(j);
@@ -179,14 +180,13 @@ public class ShooterSim{
         gc.fillArc(s.location.x - 20, s.location.y - 20, 40, 40 , 0, ((((double) s.speedBoostTime) / 500) * 360), ArcType.ROUND);
 
         if (s.shieldBoostTime % 50 > 10){
-            gc.setFill(Color.GRAY);
-            gc.fillOval(s.location.x - 13, s.location.y - 13, 26, 26);
+            gc.setFill(Color.LIGHTBLUE);
+            gc.fillOval(s.location.x - 15, s.location.y - 13, 30, 30);
             gc.setFill(Color.BLACK);
-            gc.fillOval(s.location.x - 10, s.location.y - 10, 20, 20);
+            gc.fillOval(s.location.x - 13, s.location.y - 11, 26, 26);
         }
 
-        gc.setFill(Color.WHITE);
-        gc.fillOval(s.location.x - 5, s.location.y - 5, 10, 10);
+        gc.drawImage(GameImages.friendlyShip, s.location.x-15, s.location.y-5);
         gc.setFill(Color.RED);
         for (MovingPoint bullet : s.bullets){
             gc.fillOval(bullet.location.x, bullet.location.y, 3, 3);
@@ -199,15 +199,7 @@ public class ShooterSim{
         gc.fillText(s.score + "", 20, 20);
         gc.fillText("Max: " + s.maxScore, 100, 20);
         for (Ship ship : s.ships){
-            gc.setFill(Color.GRAY);
-            double x = ship.getLocation().location.x;
-            double y = ship.getLocation().location.y;
-            double health = ship.getHealth();
-            gc.fillRect(x-100, y-50, 200, 100);
-            gc.setFill(Color.RED);
-            gc.fillRect(x - 100, y - 70, 200, 10);
-            gc.setFill(Color.GREEN);
-            gc.fillRect(x - 100, y - 70, 200 * (health/20), 10);
+            ship.draw(gc);
         }
         gc.setFill(Color.YELLOW);
         for (Vector2d speedPw : s.speedPwLocs)
@@ -215,7 +207,7 @@ public class ShooterSim{
 
         gc.setFill(Color.GRAY);
         for (Vector2d shieldPw : s.shieldPwLocs)
-            gc.fillOval(shieldPw.x - 3, shieldPw.y - 3, 6, 6);
+            gc.drawImage(GameImages.shieldPw, shieldPw.x - 3, shieldPw.y - 3);
         gc.setFill(Color.DARKRED);
         if (s.paused){
             gc.fillRect(width/2 - 100, height/2 - 150, 50, 300);
