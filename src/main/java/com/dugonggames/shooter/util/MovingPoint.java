@@ -44,6 +44,7 @@ public class MovingPoint {
         return result.subtract(secondTerm);
     }
 
+    // TODO: reimplement in terms of box
     public MovingPoint bounceInsideBox(double xmin, double xmax, double ymin, double ymax) {
         double dx = velocity.x;
         double dy = velocity.y;

@@ -47,8 +47,15 @@ public class Vector2d {
         return scale(1/Math.sqrt(lengthSq()));
     }
 
+    // TODO: reimplement in terms of Box
     public boolean inBox(double width, double height){
         return x >= 0 && y >= 0 && x <= width && y <= height;
+    }
+
+    // find the nearest point within the box
+    public Vector2d clampToBox(Box b) {
+        // TODO: implement this
+        throw new RuntimeException("Not implemented.");
     }
 
 }
