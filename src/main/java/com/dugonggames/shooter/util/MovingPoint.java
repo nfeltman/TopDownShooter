@@ -43,4 +43,19 @@ public class MovingPoint {
         secondTerm = secondTerm.scale((2*m2)/(m1+m2));
         return result.subtract(secondTerm);
     }
+
+    public MovingPoint bounceInsideBox(double xmin, double xmax, double ymin, double ymax) {
+        double dx = velocity.x;
+        double dy = velocity.y;
+        if (location.x < xmin)
+            dx = Math.abs(velocity.x);
+        if (location.x > xmax)
+            dx = -Math.abs(velocity.x);
+        if (location.y < ymin)
+            dy = Math.abs(velocity.y);
+        if (location.y > ymax)
+            dy = -Math.abs(velocity.y);
+
+        return new MovingPoint(location, new Vector2d(dx, dy));
+    }
 }

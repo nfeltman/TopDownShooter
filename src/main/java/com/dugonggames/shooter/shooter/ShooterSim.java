@@ -48,20 +48,13 @@ public class ShooterSim{
 
         ArrayList<Ship> nextShips = new ArrayList<>();
         for (Ship ship : s.ships){
-            nextShips.add(new Ship(ship.getLocation().step(dt), ship.getHealth()));
-        } for (int i = 0; i < nextShips.size(); i++){
-            if (nextShips.get(i).getLocation().location.x < 100)
-                nextShips.set(i, new Ship(new MovingPoint(nextShips.get(i).getLocation().location, new Vector2d(Math.abs(nextShips.get(i).getLocation().velocity.x), nextShips.get(i).getLocation().velocity.y)), nextShips.get(i).getHealth()));
-            if (nextShips.get(i).getLocation().location.x > width - 100)
-                nextShips.set(i, new Ship(new MovingPoint(nextShips.get(i).getLocation().location, new Vector2d(-Math.abs(nextShips.get(i).getLocation().velocity.x), nextShips.get(i).getLocation().velocity.y)), nextShips.get(i).getHealth()));
-            if (nextShips.get(i).getLocation().location.y < 50)
-                nextShips.set(i, new Ship(new MovingPoint(nextShips.get(i).getLocation().location, new Vector2d(nextShips.get(i).getLocation().velocity.x, Math.abs(nextShips.get(i).getLocation().velocity.y))), nextShips.get(i).getHealth()));
-            if (nextShips.get(i).getLocation().location.y > height - 50)
-                nextShips.set(i, new Ship(new MovingPoint(nextShips.get(i).getLocation().location, new Vector2d(nextShips.get(i).getLocation().velocity.x, -Math.abs(nextShips.get(i).getLocation().velocity.y))), nextShips.get(i).getHealth()));
+            MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(100, width - 100, 50, height - 50);
+            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth()));
 
             if (s.bulletTimer == 0)
-                nextBullets.add(makeBullet(nextLoc, nextShips.get(i).getLocation().location));
-        } if (s.shipTimer == 0){
+                nextBullets.add(makeBullet(nextLoc, nextEnemyLoc.location));
+        }
+        if (s.shipTimer == 0){
             Vector2d nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
             while (((nextShipLocation.x > (width/2)+200) || (nextShipLocation.x < (width/2) - 100)) && ((nextShipLocation.y > (height/2)+200) || (nextShipLocation.y < (height/2) - 100))){
                 nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
