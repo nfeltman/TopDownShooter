@@ -16,9 +16,8 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(0, new Vector2d(width/2, height/2), 2, false, false, false, false, new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(), false);
+        return new ShooterState(0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(), false);
     }
-
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
         boolean paused = s.paused;
@@ -26,16 +25,13 @@ public class ShooterSim{
         double nextTime = s.time + dt;
         int nextScore = s.score + 1;
         for (KeyEvent k : keyPresses){
-            s.wPressed = isPressed(KeyCode.W, k, s.wPressed);
-            s.aPressed = isPressed(KeyCode.A, k, s.aPressed);
-            s.sPressed = isPressed(KeyCode.S, k, s.sPressed);
-            s.dPressed = isPressed(KeyCode.D, k, s.dPressed);
-            if (isPressed(KeyCode.ESCAPE, k, false)) paused = !paused;
+            s.wasd.updateWithEvent(k);
+            if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) paused = !paused;
         }
-        if (s.wPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y - s.speed);
-        if (s.aPressed) nextLoc = new Vector2d(nextLoc.x - s.speed, nextLoc.y );
-        if (s.sPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y + s.speed);
-        if (s.dPressed) nextLoc = new Vector2d(nextLoc.x + s.speed, nextLoc.y);
+        if (s.wasd.wPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y - s.speed);
+        if (s.wasd.aPressed) nextLoc = new Vector2d(nextLoc.x - s.speed, nextLoc.y );
+        if (s.wasd.sPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y + s.speed);
+        if (s.wasd.dPressed) nextLoc = new Vector2d(nextLoc.x + s.speed, nextLoc.y);
 
         ArrayList<MovingPoint> nextBullets = new ArrayList<>();
         for (MovingPoint bullet : s.bullets) {
@@ -145,7 +141,7 @@ public class ShooterSim{
         else nextShipTimer %= 200;
 
         if (!paused)
-            return new ShooterState(nextTime, nextLoc, nextSpeed, s.wPressed, s.aPressed, s.sPressed, s.dPressed, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, false);
+            return new ShooterState(nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, false);
         else {
             s.paused = true;
             return s;
@@ -160,15 +156,6 @@ public class ShooterSim{
 
         return new MovingPoint(origin, velocity);
     }
-
-    private boolean isPressed(KeyCode code, KeyEvent event, boolean isCurrentlyPressed){
-        if (event.getCode().equals(code)){
-            if (event.getEventType() == KeyEvent.KEY_PRESSED) return true;
-            if (event.getEventType() == KeyEvent.KEY_RELEASED) return false;
-        }
-        return isCurrentlyPressed;
-    }
-
 
     public void draw(ShooterState s, GraphicsContext gc, double width, double height) {
         gc.setFill(Color.BLACK);

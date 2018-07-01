@@ -11,10 +11,7 @@ public class ShooterState {
     double time;
     Vector2d location;
     double speed;
-    boolean wPressed;
-    boolean aPressed;
-    boolean sPressed;
-    boolean dPressed;
+    HeldButtonState wasd;
     ArrayList<MovingPoint> bullets;
     int score;
     int maxScore;
