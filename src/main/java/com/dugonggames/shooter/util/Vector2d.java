@@ -51,4 +51,11 @@ public class Vector2d {
         return x >= 0 && y >= 0 && x <= width && y <= height;
     }
 
+    public static Vector2d getPointOnCircle(double degress, double radius, double x, double y) {
+        double rads = Math.toRadians(degress);
+        double xPosy = (x + Math.cos(rads) * radius);
+        double yPosy = (y + Math.sin(rads) * radius);
+        return new Vector2d(xPosy, yPosy);
+    }
+
 }
