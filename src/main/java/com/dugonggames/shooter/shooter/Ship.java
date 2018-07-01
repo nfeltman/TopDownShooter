@@ -16,10 +16,12 @@ public class Ship {
         double x = location.location.x;
         double y = location.location.y;
 
-        gc.setFill(Color.LIGHTBLUE);
-        gc.fillOval(x - 120, y - 120, 240, 240);
+        gc.setStroke(Color.LIGHTBLUE);
+        gc.setLineWidth(5);
+        gc.strokeOval(x-120, y-120, 240, 240);
+        /*gc.fillOval(x - 120, y - 120, 240, 240);
         gc.setFill(Color.BLACK);
-        gc.fillOval(x - 115, y - 115, 230, 230);
+        gc.fillOval(x - 115, y - 115, 230, 230);*/
 
         gc.drawImage(GameImages.enemyShip, x-100, y-110);
 

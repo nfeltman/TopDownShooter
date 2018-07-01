@@ -24,6 +24,10 @@ public class ShooterState {
     ArrayList<Vector2d> speedPwLocs;
     int shieldBoostTime;
     ArrayList<Vector2d> shieldPwLocs;
+    int damageBoostTime;
+    ArrayList<Vector2d> damageBoostLocs;
+    int tripleShotTime;
+    ArrayList<Vector2d> tripleShotLocs;
     boolean paused;
 
 }

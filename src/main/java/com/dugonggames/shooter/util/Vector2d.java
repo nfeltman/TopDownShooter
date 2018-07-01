@@ -57,5 +57,10 @@ public class Vector2d {
         // TODO: implement this
         throw new RuntimeException("Not implemented.");
     }
-
+    public static Vector2d getPointOnCircle(double degress, double radius, double x, double y) {
+        double rads = Math.toRadians(degress);
+        double xPosy = (x + Math.cos(rads) * radius);
+        double yPosy = (y + Math.sin(rads) * radius);
+        return new Vector2d(xPosy, yPosy);
+    }
 }
