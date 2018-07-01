@@ -45,16 +45,16 @@ public class MovingPoint {
     }
 
     // TODO: reimplement in terms of box
-    public MovingPoint bounceInsideBox(double xmin, double xmax, double ymin, double ymax) {
+    public MovingPoint bounceInsideBox(Box b) {
         double dx = velocity.x;
         double dy = velocity.y;
-        if (location.x < xmin)
+        if (location.x < b.left)
             dx = Math.abs(velocity.x);
-        if (location.x > xmax)
+        if (location.x > b.right)
             dx = -Math.abs(velocity.x);
-        if (location.y < ymin)
+        if (location.y < b.top)
             dy = Math.abs(velocity.y);
-        if (location.y > ymax)
+        if (location.y > b.bottom)
             dy = -Math.abs(velocity.y);
 
         return new MovingPoint(location, new Vector2d(dx, dy));

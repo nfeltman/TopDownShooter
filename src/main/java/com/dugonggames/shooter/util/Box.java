@@ -13,21 +13,13 @@ public class Box {
 
         if(left > right)
             throw new IllegalArgumentException("left ("+left+") should be less than right ("+right+")");
-
-        // TODO implement top/bottom check
-        throw new RuntimeException("Not implemented.");
+        if (top > bottom)
+            throw new IllegalArgumentException("top ("+top+") should be less than bottom ("+bottom+")");
     }
 
-    public Vector2d getRandomPointInside() {
-        // TODO: implment this
-        throw new RuntimeException("Not implemented.");
-    }
-
-    public Box plus(Box b) {
-        return new Box(top + b.top, bottom + b.bottom, left + b.left, right + b.right);
-    }
-
-    public Box minus(Box b) {
-        return new Box(top - b.top, bottom - b.bottom, left - b.left, right - b.right);
+    public Vector2d randomPoint() {
+        double x = left + (Math.random() * (right - left));
+        double y = top + (Math.random() * (bottom - top));
+        return new Vector2d(x, y);
     }
 }

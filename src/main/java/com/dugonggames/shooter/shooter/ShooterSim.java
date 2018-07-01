@@ -1,5 +1,6 @@
 package com.dugonggames.shooter.shooter;
 
+import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
 import javafx.event.EventType;
@@ -14,9 +15,10 @@ import java.util.ArrayList;
 
 public class ShooterSim{
 
+
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 0, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -37,7 +39,7 @@ public class ShooterSim{
 
         ArrayList<Ship> nextShips = new ArrayList<>();
         for (Ship ship : s.ships){
-            MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(100, width - 100, 50, height - 50);
+            MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(s.enemyShipArea);
             nextShips.add(new Ship(nextEnemyLoc, ship.getHealth()));
 
             if (s.bulletTimer == 0)
@@ -70,14 +72,12 @@ public class ShooterSim{
                     double distance = Vector2d.distance(s.location, new Vector2d(x, y));
 
                     nextLocation = new Vector2d(s.location.x, s.location.y);
-                    nextVelocity = Vector2d.getPointOnCircle(Math.cos(x) * 25, distance, s.location.x, s.location.y).subtract(nextLocation);
-                    nextVelocity = nextVelocity.normalize().scale(1000);
+                    nextVelocity = nextVelocity.rotatePiOver8();
                     yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
 
                     nextLocation = new Vector2d(s.location.x, s.location.y);
-                    nextVelocity = new Vector2d(x * 1.1, s.location.y + Math.sqrt((distance * distance) - (((x * 1.1) - s.location.x) * ((x * 1.1) - s.location.x)))).subtract(nextLocation);
-                    nextVelocity = nextVelocity.normalize().scale(1000);
-                    // yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
+                    nextVelocity = nextVelocity.rotateNegativePiOver8().rotateNegativePiOver8();
+                    yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
                 }
             }
         }
@@ -98,7 +98,7 @@ public class ShooterSim{
                     collided = true;
                 }
             }
-            if (s.yourBullets.get(i).location.inBox(width, height) && !collided)
+            if (s.yourBullets.get(i).location.inBox(s.playArea) && !collided)
                 yourNextBullets.add(s.yourBullets.get(i).step(dt));
         }
 
@@ -109,19 +109,19 @@ public class ShooterSim{
         if (s.pwTimer == 0){
             double whichPw = Math.random();
             if (whichPw < 0.25)
-                nextShieldPwLocs.add(new Vector2d((Math.random() * (width - 100)) + 50, (Math.random() * (height - 100)) + 50));
-            else if (whichPw < 0.25)
-                nextSpeedPwLocs.add(new Vector2d((Math.random() * (width - 100)) + 50, (Math.random() * (height - 100)) + 50));
-            else if (whichPw < 0.25)
-                nextDamageBoostLocs.add(new Vector2d((Math.random() * (width - 100)) + 50, (Math.random() * (height - 100)) + 50));
+                nextShieldPwLocs.add(s.enemyShipArea.randomPoint());
+            else if (whichPw < 0.50)
+                nextSpeedPwLocs.add(s.enemyShipArea.randomPoint());
+            else if (whichPw < 0.75)
+                nextDamageBoostLocs.add(s.enemyShipArea.randomPoint());
             else
-                nextTripleShotLocs.add(new Vector2d((Math.random() * (width - 100)) + 50, (Math.random() * (height - 100)) + 50));
+                nextTripleShotLocs.add(s.enemyShipArea.randomPoint());
         }
 
         double nextSpeed = s.speed;
         int nextSpeedBoostTime = Math.max(s.speedBoostTime - 1, 0);
         for (int i = 0; i < nextSpeedPwLocs.size(); i++){
-            if (Vector2d.distance(nextSpeedPwLocs.get(i), s.location) < 6.5) {
+            if (Vector2d.distance(nextSpeedPwLocs.get(i), s.location) < 10) {
                 nextSpeed *= 2;
                 nextSpeedBoostTime = 500;
                 nextSpeedPwLocs.remove(i);
@@ -131,7 +131,7 @@ public class ShooterSim{
 
         int nextShieldBoostTime = Math.max(s.shieldBoostTime - 1, 0);
         for (int i = 0; i < nextShieldPwLocs.size(); i++){
-            if (Vector2d.distance(nextShieldPwLocs.get(i), s.location) < 6.5) {
+            if (Vector2d.distance(nextShieldPwLocs.get(i), s.location) < 10) {
                 nextShieldBoostTime = 250;
                 nextShieldPwLocs.remove(i);
             }
@@ -139,7 +139,7 @@ public class ShooterSim{
 
         int nextDamageBoostTime = Math.max(s.damageBoostTime - 1, 0);
         for (int i = 0; i < nextDamageBoostLocs.size(); i++){
-            if (Vector2d.distance(nextDamageBoostLocs.get(i), s.location) < 6.5) {
+            if (Vector2d.distance(nextDamageBoostLocs.get(i), s.location) < 10) {
                 nextDamageBoostTime = 500;
                 nextDamageBoostLocs.remove(i);
             }
@@ -147,8 +147,8 @@ public class ShooterSim{
 
         int nextTripleShotTime = Math.max(s.tripleShotTime - 1, 0);
         for (int i = 0; i < nextTripleShotLocs.size(); i++){
-            if (Vector2d.distance(nextTripleShotLocs.get(i), s.location) < 6.5) {
-                nextTripleShotTime = 10000;
+            if (Vector2d.distance(nextTripleShotLocs.get(i), s.location) < 10) {
+                nextTripleShotTime = 500;
                 nextTripleShotLocs.remove(i);
             }
         }
@@ -161,7 +161,7 @@ public class ShooterSim{
         else nextShipTimer %= 200;
 
         for (MovingPoint bullet : s.bullets) {
-            if (bullet.location.x >= 0 && bullet.location.x <= width && bullet.location.y >= 0 && bullet.location.y <= height)
+            if (bullet.location.inBox(s.playArea))
                 nextBullets.add(bullet.step(dt));
             if (Vector2d.distance(bullet.location, s.location) < 6.5 && s.shieldBoostTime == 0) {
                 nextBullets.clear();
@@ -175,7 +175,7 @@ public class ShooterSim{
         }
 
         if (!paused)
-            return new ShooterState(nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, nextDamageBoostTime, nextDamageBoostLocs, nextTripleShotTime, nextTripleShotLocs, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, nextDamageBoostTime, nextDamageBoostLocs, nextTripleShotTime, nextTripleShotLocs, false);
         else {
             s.paused = true;
             return s;

@@ -8,6 +8,8 @@ import lombok.ToString;
 public class Vector2d {
     public final double x;
     public final double y;
+    private static final double sinpiover8 = 0.382683432365089771728459984030398866761344562485627041433;
+    private static final double cospiover8 = 0.923879532511286756128183189396788286822416625863642486115;
 
     public Vector2d add(Vector2d vector){
         return new Vector2d(x+vector.x, y+vector.y);
@@ -48,19 +50,30 @@ public class Vector2d {
     }
 
     // TODO: reimplement in terms of Box
-    public boolean inBox(double width, double height){
-        return x >= 0 && y >= 0 && x <= width && y <= height;
+    public boolean inBox(Box b){
+        return x >= b.left && y >= b.top && x <= b.right && y <= b.bottom;
     }
 
     // find the nearest point within the box
     public Vector2d clampToBox(Box b) {
-        // TODO: implement this
-        throw new RuntimeException("Not implemented.");
+       double newX = x;
+       double newY = y;
+       if (newX > b.right) newX = b.right;
+       if (newX < b.left) newX = b.left;
+       if (newY > b.bottom) newY = b.bottom;
+       if (newY < b.top) newY = b.top;
+
+       return new Vector2d(newX, newY);
     }
-    public static Vector2d getPointOnCircle(double degress, double radius, double x, double y) {
-        double rads = Math.toRadians(degress);
-        double xPosy = (x + Math.cos(rads) * radius);
-        double yPosy = (y + Math.sin(rads) * radius);
-        return new Vector2d(xPosy, yPosy);
+
+    public Vector2d rotatePiOver8(){
+        double newX = (x*cospiover8) - (y*sinpiover8);
+        double newY = (x*sinpiover8) + (y*cospiover8);
+        return new Vector2d(newX, newY);
+    }
+    public Vector2d rotateNegativePiOver8(){
+        double newX = (x*cospiover8) + (y*sinpiover8);
+        double newY = (y*cospiover8) - (x*sinpiover8);
+        return new Vector2d(newX, newY);
     }
 }
