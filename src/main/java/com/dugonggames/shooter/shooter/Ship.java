@@ -2,7 +2,9 @@ package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.util.MovingPoint;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -12,7 +14,7 @@ public class Ship {
     MovingPoint location;
     int health;
 
-    public void draw(GraphicsContext gc){
+    public void draw(GraphicsContext gc, double angle){
         double x = location.location.x;
         double y = location.location.y;
 
@@ -23,12 +25,24 @@ public class Ship {
         gc.setFill(Color.BLACK);
         gc.fillOval(x - 115, y - 115, 230, 230);*/
 
-        gc.drawImage(GameImages.enemyShip, x-100, y-110);
+        drawRotatedImage(gc, GameImages.enemyShip, angle, x-100, y-110);
 
         gc.setFill(Color.LIGHTBLUE);
         gc.setFill(Color.RED);
         gc.fillRect(x - 100, y - 70, 200, 10);
         gc.setFill(Color.GREEN);
         gc.fillRect(x - 100, y - 70, 200 * (health/20.0), 10);
+    }
+
+    public void rotate(GraphicsContext gc, double angle, double px, double py) {
+        Rotate r = new Rotate(angle, px, py);
+        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+    }
+
+    public void drawRotatedImage(GraphicsContext gc, Image image, double angle, double tlpx, double tlpy) {
+        gc.save(); // saves the current state on stack, including the current transform
+        rotate(gc, angle, tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2);
+        gc.drawImage(image, tlpx, tlpy);
+        gc.restore(); // back to original state (before rotation)
     }
 }

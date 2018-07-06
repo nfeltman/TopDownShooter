@@ -218,7 +218,16 @@ public class ShooterSim{
         gc.fillText(s.score + "", 20, 20);
         gc.fillText("Max: " + s.maxScore, 100, 20);
         for (Ship ship : s.ships){
-            ship.draw(gc);
+            double xDiff = ship.getLocation().location.x - s.location.x;
+            double yDiff = ship.getLocation().location.y - s.location.y;
+            if (xDiff > width / 4 && xDiff > Math.abs(yDiff))
+                ship.draw(gc, 270);
+            if (xDiff < -(width / 4) && xDiff < -Math.abs(yDiff))
+                ship.draw(gc, 90);
+            if (yDiff > height / 4 && yDiff > Math.abs(xDiff))
+                ship.draw(gc, 0);
+            if (yDiff < -(height / 4) && yDiff < -Math.abs(xDiff))
+                ship.draw(gc, 180);
         }
 
         for (Vector2d speedPw : s.speedPwLocs) {
