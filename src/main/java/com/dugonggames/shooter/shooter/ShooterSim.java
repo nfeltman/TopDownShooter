@@ -14,12 +14,14 @@ import javafx.scene.shape.ArcType;
 import java.awt.*;
 import java.util.ArrayList;
 
+import static com.dugonggames.shooter.shooter.Inventory.Item.*;
+
 public class ShooterSim{
 
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new int[4], 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new Inventory(), 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -111,14 +113,12 @@ public class ShooterSim{
                 nextTripleShotLocs.add(s.enemyShipArea.randomPoint());
         }
 
-        int[] nextInventory = s.inventory;
-
         double nextSpeed = s.speed;
         int nextSpeedBoostTime = Math.max(s.speedBoostTime - 1, 0);
         for (int i = 0; i < nextSpeedPwLocs.size(); i++){
             if (Vector2d.distance(nextSpeedPwLocs.get(i), s.location) < 10) {
                 nextSpeedPwLocs.remove(i);
-                nextInventory[0]++;
+                s.inventory.increment(SPEED_BOOST);
             }
         }
         if (nextSpeedBoostTime == 0) nextSpeed = 2;
@@ -127,7 +127,7 @@ public class ShooterSim{
         for (int i = 0; i < nextShieldPwLocs.size(); i++){
             if (Vector2d.distance(nextShieldPwLocs.get(i), s.location) < 10) {
                 nextShieldPwLocs.remove(i);
-                nextInventory[1]++;
+                s.inventory.increment(SHIELD);
             }
         }
 
@@ -135,7 +135,7 @@ public class ShooterSim{
         for (int i = 0; i < nextDamageBoostLocs.size(); i++){
             if (Vector2d.distance(nextDamageBoostLocs.get(i), s.location) < 10) {
                 nextDamageBoostLocs.remove(i);
-                nextInventory[2]++;
+                s.inventory.increment(DAMAGE_BOOST);
             }
         }
 
@@ -143,28 +143,28 @@ public class ShooterSim{
         for (int i = 0; i < nextTripleShotLocs.size(); i++){
             if (Vector2d.distance(nextTripleShotLocs.get(i), s.location) < 10) {
                 nextTripleShotLocs.remove(i);
-                nextInventory[3]++;
+                s.inventory.increment(TRIPLE_SHOT);
             }
         }
 
         for (KeyEvent k : keyPresses){
             s.wasd.updateWithEvent(k);
             if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) paused = !paused;
-            if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[0] > 0){
-                nextInventory[0]--;
+            if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SPEED_BOOST)){
+                s.inventory.decrement(SPEED_BOOST);
                 nextSpeedBoostTime = 500;
                 nextSpeed *= 2;
             }
-            if (KeyCode.DIGIT2 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[1] > 0){
-                nextInventory[1]--;
+            if (KeyCode.DIGIT2 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SHIELD)){
+                s.inventory.decrement(SHIELD);
                 nextShieldBoostTime = 250;
             }
-            if (KeyCode.DIGIT3 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[2] > 0){
-                nextInventory[2]--;
+            if (KeyCode.DIGIT3 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(DAMAGE_BOOST)){
+                s.inventory.decrement(DAMAGE_BOOST);
                 nextDamageBoostTime = 500;
             }
-            if (KeyCode.DIGIT4 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[3] > 0){
-                nextInventory[3]--;
+            if (KeyCode.DIGIT4 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(TRIPLE_SHOT)){
+                s.inventory.decrement(TRIPLE_SHOT);
                 nextTripleShotTime = 500;
             }
         }
@@ -195,7 +195,7 @@ public class ShooterSim{
         }
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextInventory, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, nextDamageBoostTime, nextDamageBoostLocs, nextTripleShotTime, nextTripleShotLocs, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, nextDamageBoostTime, nextDamageBoostLocs, nextTripleShotTime, nextTripleShotLocs, false);
         else {
             s.paused = true;
             return s;
@@ -256,24 +256,24 @@ public class ShooterSim{
             gc.drawImage(GameImages.tripleShot, tripleShot.x - 3, tripleShot.y - 3);
         }
 
-        if (s.inventory[0] >= 1)
+        if (s.inventory.hasAtLeastOne(SPEED_BOOST))
             gc.drawImage(GameImages.speedPwBig, 10, height - 70);
-        if (s.inventory[1] >= 1)
+        if (s.inventory.hasAtLeastOne(SHIELD))
             gc.drawImage(GameImages.shieldPwBig, 85, height - 65);
-        if (s.inventory[2] >= 1)
+        if (s.inventory.hasAtLeastOne(DAMAGE_BOOST))
             gc.drawImage(GameImages.damageBoostBig, 150, height - 70);
-        if (s.inventory[3] >= 1)
+        if (s.inventory.hasAtLeastOne(TRIPLE_SHOT))
             gc.drawImage(GameImages.tripleShotBig, 220, height - 65);
 
         gc.setFill(Color.WHITE);
-        if (s.inventory[0] >= 2)
-            gc.fillText(s.inventory[0] + "", 10, height - 70);
-        if (s.inventory[1] >= 2)
-            gc.fillText(s.inventory[1] + "", 80, height - 70);
-        if (s.inventory[2] >= 2)
-            gc.fillText(s.inventory[2] + "", 150, height - 70);
-        if (s.inventory[3] >= 2)
-            gc.fillText(s.inventory[3] + "", 220, height - 70);
+        if (s.inventory.getCount(SPEED_BOOST) >= 2)
+            gc.fillText(s.inventory.getCount(SPEED_BOOST) + "", 10, height - 70);
+        if (s.inventory.getCount(SHIELD) >= 2)
+            gc.fillText(s.inventory.getCount(SHIELD) + "", 80, height - 70);
+        if (s.inventory.getCount(DAMAGE_BOOST) >= 2)
+            gc.fillText(s.inventory.getCount(DAMAGE_BOOST) + "", 150, height - 70);
+        if (s.inventory.getCount(TRIPLE_SHOT) >= 2)
+            gc.fillText(s.inventory.getCount(TRIPLE_SHOT) + "", 220, height - 70);
 
 
 

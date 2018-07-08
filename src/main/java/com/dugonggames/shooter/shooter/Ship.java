@@ -18,8 +18,6 @@ public class Ship {
         double x = location.location.x;
         double y = location.location.y;
 
-        System.out.println("draw angle: "+angle);
-
         gc.setStroke(Color.LIGHTBLUE);
         gc.setLineWidth(5);
         gc.strokeOval(x-120, y-120, 240, 240);

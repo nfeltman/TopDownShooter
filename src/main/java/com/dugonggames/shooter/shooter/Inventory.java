@@ -2,23 +2,26 @@ package com.dugonggames.shooter.shooter;
 
 public class Inventory {
 
-    public enum Item {
-        SOME_POWERUP
+    public enum Item {SPEED_BOOST, SHIELD, DAMAGE_BOOST, TRIPLE_SHOT}
+    private int[] itemCount;
+
+    public Inventory(){
+        itemCount = new int[4];
     }
 
     public boolean hasAtLeastOne(Item i) {
-        throw new RuntimeException("not implemented");
+        return itemCount[i.ordinal()] >= 1;
     }
 
-    public boolean getCount(Item i) {
-        throw new RuntimeException("not implemented");
+    public int getCount(Item i) {
+        return itemCount[i.ordinal()];
     }
 
     public void increment(Item i) {
-        throw new RuntimeException("not implemented");
+        itemCount[i.ordinal()]++;
     }
 
     public void decrement(Item i) {
-        throw new RuntimeException("not implemented");
+        itemCount[i.ordinal()]--;
     }
 }
