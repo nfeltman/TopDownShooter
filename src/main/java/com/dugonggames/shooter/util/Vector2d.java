@@ -76,4 +76,8 @@ public class Vector2d {
         double newY = (y*cospiover8) - (x*sinpiover8);
         return new Vector2d(newX, newY);
     }
+
+    public double getAngle() {
+        return Math.atan(-x/y) * (180.0/Math.PI) + (y > 0 ? 180.0 : 0.0);
+    }
 }
