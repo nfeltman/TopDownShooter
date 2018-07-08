@@ -23,6 +23,7 @@ public class ShooterState {
     int bulletTimer;
     int shipTimer;
     int pwTimer;
+    int[] inventory;
     int speedBoostTime;
     ArrayList<Vector2d> speedPwLocs;
     int shieldBoostTime;

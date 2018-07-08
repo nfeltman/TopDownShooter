@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class ShooterSim{
@@ -18,7 +19,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new int[4], 0,  new ArrayList<Vector2d>(), 0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(),0, new ArrayList<Vector2d>(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -27,14 +28,6 @@ public class ShooterSim{
         double nextTime = s.time + dt;
         int nextScore = s.score + 1;
         ArrayList<MovingPoint> nextBullets = new ArrayList<>();
-        for (KeyEvent k : keyPresses){
-            s.wasd.updateWithEvent(k);
-            if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) paused = !paused;
-        }
-        if (s.wasd.wPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y - s.speed);
-        if (s.wasd.aPressed) nextLoc = new Vector2d(nextLoc.x - s.speed, nextLoc.y );
-        if (s.wasd.sPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y + s.speed);
-        if (s.wasd.dPressed) nextLoc = new Vector2d(nextLoc.x + s.speed, nextLoc.y);
 
 
         ArrayList<Ship> nextShips = new ArrayList<>();
@@ -106,7 +99,7 @@ public class ShooterSim{
         ArrayList<Vector2d> nextShieldPwLocs = s.shieldPwLocs;
         ArrayList<Vector2d> nextDamageBoostLocs = s.damageBoostLocs;
         ArrayList<Vector2d> nextTripleShotLocs = s.tripleShotLocs;
-        if (s.pwTimer == 0){
+        if (s.pwTimer == 0) {
             double whichPw = Math.random();
             if (whichPw < 0.25)
                 nextShieldPwLocs.add(s.enemyShipArea.randomPoint());
@@ -118,13 +111,14 @@ public class ShooterSim{
                 nextTripleShotLocs.add(s.enemyShipArea.randomPoint());
         }
 
+        int[] nextInventory = s.inventory;
+
         double nextSpeed = s.speed;
         int nextSpeedBoostTime = Math.max(s.speedBoostTime - 1, 0);
         for (int i = 0; i < nextSpeedPwLocs.size(); i++){
             if (Vector2d.distance(nextSpeedPwLocs.get(i), s.location) < 10) {
-                nextSpeed *= 2;
-                nextSpeedBoostTime = 500;
                 nextSpeedPwLocs.remove(i);
+                nextInventory[0]++;
             }
         }
         if (nextSpeedBoostTime == 0) nextSpeed = 2;
@@ -132,26 +126,52 @@ public class ShooterSim{
         int nextShieldBoostTime = Math.max(s.shieldBoostTime - 1, 0);
         for (int i = 0; i < nextShieldPwLocs.size(); i++){
             if (Vector2d.distance(nextShieldPwLocs.get(i), s.location) < 10) {
-                nextShieldBoostTime = 250;
                 nextShieldPwLocs.remove(i);
+                nextInventory[1]++;
             }
         }
 
         int nextDamageBoostTime = Math.max(s.damageBoostTime - 1, 0);
         for (int i = 0; i < nextDamageBoostLocs.size(); i++){
             if (Vector2d.distance(nextDamageBoostLocs.get(i), s.location) < 10) {
-                nextDamageBoostTime = 500;
                 nextDamageBoostLocs.remove(i);
+                nextInventory[2]++;
             }
         }
 
         int nextTripleShotTime = Math.max(s.tripleShotTime - 1, 0);
         for (int i = 0; i < nextTripleShotLocs.size(); i++){
             if (Vector2d.distance(nextTripleShotLocs.get(i), s.location) < 10) {
-                nextTripleShotTime = 500;
                 nextTripleShotLocs.remove(i);
+                nextInventory[3]++;
             }
         }
+
+        for (KeyEvent k : keyPresses){
+            s.wasd.updateWithEvent(k);
+            if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) paused = !paused;
+            if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[0] > 0){
+                nextInventory[0]--;
+                nextSpeedBoostTime = 500;
+                nextSpeed *= 2;
+            }
+            if (KeyCode.DIGIT2 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[1] > 0){
+                nextInventory[1]--;
+                nextShieldBoostTime = 250;
+            }
+            if (KeyCode.DIGIT3 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[2] > 0){
+                nextInventory[2]--;
+                nextDamageBoostTime = 500;
+            }
+            if (KeyCode.DIGIT4 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && nextInventory[3] > 0){
+                nextInventory[3]--;
+                nextTripleShotTime = 500;
+            }
+        }
+        if (s.wasd.wPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y - s.speed);
+        if (s.wasd.aPressed) nextLoc = new Vector2d(nextLoc.x - s.speed, nextLoc.y );
+        if (s.wasd.sPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y + s.speed);
+        if (s.wasd.dPressed) nextLoc = new Vector2d(nextLoc.x + s.speed, nextLoc.y);
 
         int nextShipTimer = s.shipTimer + 1;
         if (nextScore <= 2500) nextShipTimer %= 500;
@@ -175,7 +195,7 @@ public class ShooterSim{
         }
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, nextDamageBoostTime, nextDamageBoostLocs, nextTripleShotTime, nextTripleShotLocs, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, nextInventory, nextSpeedBoostTime, nextSpeedPwLocs, nextShieldBoostTime, nextShieldPwLocs, nextDamageBoostTime, nextDamageBoostLocs, nextTripleShotTime, nextTripleShotLocs, false);
         else {
             s.paused = true;
             return s;
@@ -217,6 +237,7 @@ public class ShooterSim{
         gc.setFill(Color.WHITE);
         gc.fillText(s.score + "", 20, 20);
         gc.fillText("Max: " + s.maxScore, 100, 20);
+
         for (Ship ship : s.ships){
             double xDiff = ship.getLocation().location.x - s.location.x;
             double yDiff = ship.getLocation().location.y - s.location.y;
@@ -242,6 +263,27 @@ public class ShooterSim{
         for (Vector2d tripleShot : s.tripleShotLocs) {
             gc.drawImage(GameImages.tripleShot, tripleShot.x - 3, tripleShot.y - 3);
         }
+
+        if (s.inventory[0] >= 1)
+            gc.drawImage(GameImages.speedPwBig, 10, height - 70);
+        if (s.inventory[1] >= 1)
+            gc.drawImage(GameImages.shieldPwBig, 85, height - 65);
+        if (s.inventory[2] >= 1)
+            gc.drawImage(GameImages.damageBoostBig, 150, height - 70);
+        if (s.inventory[3] >= 1)
+            gc.drawImage(GameImages.tripleShotBig, 220, height - 65);
+
+        gc.setFill(Color.WHITE);
+        if (s.inventory[0] >= 2)
+            gc.fillText(s.inventory[0] + "", 10, height - 70);
+        if (s.inventory[1] >= 2)
+            gc.fillText(s.inventory[1] + "", 80, height - 70);
+        if (s.inventory[2] >= 2)
+            gc.fillText(s.inventory[2] + "", 150, height - 70);
+        if (s.inventory[3] >= 2)
+            gc.fillText(s.inventory[3] + "", 220, height - 70);
+
+
 
         gc.setFill(Color.DARKRED);
         if (s.paused){
