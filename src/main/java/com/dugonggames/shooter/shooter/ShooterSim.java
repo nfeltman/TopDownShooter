@@ -115,13 +115,14 @@ public class ShooterSim{
         }
 
         double nextSpeed = s.speed;
+        if (s.buffsManager.buffTimeLeft(SPEED_BUFF) == 499) nextSpeed *= 2;
         for (int i = 0; i < nextSpeedPwLocs.size(); i++){
             if (Vector2d.distance(nextSpeedPwLocs.get(i), s.location) < 10) {
                 nextSpeedPwLocs.remove(i);
                 s.inventory.increment(SPEED_BOOST);
             }
         }
-        if (s.buffsManager.isActiveBuff(SPEED_BUFF)) nextSpeed = 2;
+        if (!s.buffsManager.isActiveBuff(SPEED_BUFF)) nextSpeed = 2;
 
         for (int i = 0; i < nextShieldPwLocs.size(); i++){
             if (Vector2d.distance(nextShieldPwLocs.get(i), s.location) < 10) {
@@ -150,7 +151,6 @@ public class ShooterSim{
             if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SPEED_BOOST)){
                 s.inventory.decrement(SPEED_BOOST);
                 s.buffsManager.activateBuff(SPEED_BUFF, 500);
-                nextSpeed *= 2;
             }
             if (KeyCode.DIGIT2 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SHIELD)){
                 s.inventory.decrement(SHIELD);
@@ -180,7 +180,7 @@ public class ShooterSim{
         for (MovingPoint bullet : s.bullets) {
             if (bullet.location.inBox(s.playArea))
                 nextBullets.add(bullet.step(dt));
-            if (Vector2d.distance(bullet.location, s.location) < 6.5 && s.buffsManager.isActiveBuff(SHIELD_BUFF)) {
+            if (Vector2d.distance(bullet.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)) {
                 nextBullets.clear();
                 nextTime = 0;
                 nextScore = 0;
@@ -190,6 +190,8 @@ public class ShooterSim{
                 break;
             }
         }
+
+        s.buffsManager.tickTimer();
 
         if (!paused)
             return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, nextSpeedPwLocs, nextShieldPwLocs, nextDamageBoostLocs, nextTripleShotLocs, false);
