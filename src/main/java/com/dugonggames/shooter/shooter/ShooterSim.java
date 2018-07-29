@@ -15,13 +15,14 @@ import java.util.ArrayList;
 
 import static com.dugonggames.shooter.shooter.Inventory.Item.*;
 import static com.dugonggames.shooter.shooter.BuffsManager.BuffType.*;
+import static com.dugonggames.shooter.shooter.DropsManager.DropType.*;
 
 public class ShooterSim{
 
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new Inventory(), new BuffsManager(),  new ArrayList<Vector2d>(),  new ArrayList<Vector2d>(), new ArrayList<Vector2d>(),new ArrayList<Vector2d>(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new Inventory(), new BuffsManager(),  new DropsManager(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -97,52 +98,35 @@ public class ShooterSim{
                 yourNextBullets.add(s.yourBullets.get(i).step(dt));
         }
 
-        ArrayList<Vector2d> nextSpeedPwLocs = s.speedPwLocs;
-        ArrayList<Vector2d> nextShieldPwLocs = s.shieldPwLocs;
-        ArrayList<Vector2d> nextDamageBoostLocs = s.damageBoostLocs;
-        ArrayList<Vector2d> nextTripleShotLocs = s.tripleShotLocs;
         if (s.pwTimer == 0) {
             double whichPw = Math.random();
             if (whichPw < 0.25)
-                nextShieldPwLocs.add(s.enemyShipArea.randomPoint());
+                s.dropsManager.placeDrop(new DropsManager.Drop(SPEED_DROP, s.enemyShipArea.randomPoint()));
             else if (whichPw < 0.50)
-                nextSpeedPwLocs.add(s.enemyShipArea.randomPoint());
+                s.dropsManager.placeDrop(new DropsManager.Drop(SHIELD_DROP, s.enemyShipArea.randomPoint()));
             else if (whichPw < 0.75)
-                nextDamageBoostLocs.add(s.enemyShipArea.randomPoint());
+                s.dropsManager.placeDrop(new DropsManager.Drop(DAMAGE_DROP, s.enemyShipArea.randomPoint()));
             else
-                nextTripleShotLocs.add(s.enemyShipArea.randomPoint());
+                s.dropsManager.placeDrop(new DropsManager.Drop(TRIPLESHOT_DROP, s.enemyShipArea.randomPoint()));
         }
+
+        ArrayList<DropsManager.Drop> pickedUpDrops = s.dropsManager.pickUpDrops(s.location);
 
         double nextSpeed = s.speed;
         if (s.buffsManager.buffTimeLeft(SPEED_BUFF) == 499) nextSpeed *= 2;
-        for (int i = 0; i < nextSpeedPwLocs.size(); i++){
-            if (Vector2d.distance(nextSpeedPwLocs.get(i), s.location) < 10) {
-                nextSpeedPwLocs.remove(i);
+
+        for (DropsManager.Drop drop : pickedUpDrops) {
+            if (drop.dropType == SPEED_DROP)
                 s.inventory.increment(SPEED_BOOST);
-            }
-        }
-        if (!s.buffsManager.isActiveBuff(SPEED_BUFF)) nextSpeed = 2;
-
-        for (int i = 0; i < nextShieldPwLocs.size(); i++){
-            if (Vector2d.distance(nextShieldPwLocs.get(i), s.location) < 10) {
-                nextShieldPwLocs.remove(i);
+            if (drop.dropType == SHIELD_DROP)
                 s.inventory.increment(SHIELD);
-            }
-        }
-
-        for (int i = 0; i < nextDamageBoostLocs.size(); i++){
-            if (Vector2d.distance(nextDamageBoostLocs.get(i), s.location) < 10) {
-                nextDamageBoostLocs.remove(i);
+            if (drop.dropType == DAMAGE_DROP)
                 s.inventory.increment(DAMAGE_BOOST);
-            }
+            if (drop.dropType == TRIPLESHOT_DROP)
+                s.inventory.increment(TRIPLE_SHOT);
         }
 
-        for (int i = 0; i < nextTripleShotLocs.size(); i++){
-            if (Vector2d.distance(nextTripleShotLocs.get(i), s.location) < 10) {
-                nextTripleShotLocs.remove(i);
-                s.inventory.increment(TRIPLE_SHOT);
-            }
-        }
+        if (!s.buffsManager.isActiveBuff(SPEED_BUFF)) nextSpeed = 2;
 
         for (KeyEvent k : keyPresses){
             s.wasd.updateWithEvent(k);
@@ -184,8 +168,6 @@ public class ShooterSim{
                 nextTime = 0;
                 nextScore = 0;
                 nextShips.clear();
-                nextSpeedPwLocs.clear();
-                nextShieldPwLocs.clear();
                 break;
             }
         }
@@ -193,7 +175,7 @@ public class ShooterSim{
         s.buffsManager.tickTimer();
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, nextSpeedPwLocs, nextShieldPwLocs, nextDamageBoostLocs, nextTripleShotLocs, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,false);
         else {
             s.paused = true;
             return s;
@@ -241,17 +223,15 @@ public class ShooterSim{
             ship.draw(gc, angle);
         }
 
-        for (Vector2d speedPw : s.speedPwLocs) {
-            gc.drawImage(GameImages.speedPw, speedPw.x - 3, speedPw.y - 3);
-        }
-        for (Vector2d shieldPw : s.shieldPwLocs) {
-            gc.drawImage(GameImages.shieldPw, shieldPw.x - 3, shieldPw.y - 3);
-        }
-        for (Vector2d damageBoost : s.damageBoostLocs) {
-            gc.drawImage(GameImages.damageBoost, damageBoost.x - 3, damageBoost.y - 3);
-        }
-        for (Vector2d tripleShot : s.tripleShotLocs) {
-            gc.drawImage(GameImages.tripleShot, tripleShot.x - 3, tripleShot.y - 3);
+        for (DropsManager.Drop drop : s.dropsManager.getCurrentDrops()){
+            if (drop.dropType == SPEED_DROP)
+                gc.drawImage(GameImages.speedPw, drop.position.x - 3, drop.position.y - 3);
+            if (drop.dropType == SHIELD_DROP)
+                gc.drawImage(GameImages.shieldPw, drop.position.x - 3, drop.position.y - 3);
+            if (drop.dropType == DAMAGE_DROP)
+                gc.drawImage(GameImages.damageBoost, drop.position.x - 3, drop.position.y - 3);
+            if (drop.dropType == TRIPLESHOT_DROP)
+                gc.drawImage(GameImages.tripleShot, drop.position.x - 3, drop.position.y - 3);
         }
 
         if (s.inventory.hasAtLeastOne(SPEED_BOOST))

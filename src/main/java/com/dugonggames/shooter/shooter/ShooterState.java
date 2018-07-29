@@ -25,10 +25,7 @@ public class ShooterState {
     int pwTimer;
     Inventory inventory;
     BuffsManager buffsManager;
-    ArrayList<Vector2d> speedPwLocs;
-    ArrayList<Vector2d> shieldPwLocs;
-    ArrayList<Vector2d> damageBoostLocs;
-    ArrayList<Vector2d> tripleShotLocs;
+    DropsManager dropsManager;
     boolean paused;
 
 }
