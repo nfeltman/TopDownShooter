@@ -1,6 +1,7 @@
 package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.graphics.GameImages;
+import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
@@ -192,6 +193,8 @@ public class ShooterSim{
     }
 
     public void draw(ShooterState s, GraphicsContext gc, double width, double height) {
+        GfxWrapper gfx = new GfxWrapper(gc);
+
         gc.drawImage(GameImages.background, 0, 0);
 
         gc.setFill(Color.YELLOW);
