@@ -1,9 +1,9 @@
 package com.dugonggames.shooter.shooter;
 
+import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
-import javafx.event.EventType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -11,7 +11,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 import static com.dugonggames.shooter.shooter.Inventory.Item.*;

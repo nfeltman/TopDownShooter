@@ -1,5 +1,6 @@
 package com.dugonggames.shooter.shooter;
 
+import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.util.MovingPoint;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

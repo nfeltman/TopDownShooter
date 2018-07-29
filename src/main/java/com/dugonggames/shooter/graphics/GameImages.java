@@ -1,4 +1,4 @@
-package com.dugonggames.shooter.shooter;
+package com.dugonggames.shooter.graphics;
 
 import javafx.scene.image.Image;
 
