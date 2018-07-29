@@ -26,7 +26,7 @@ public class Ship {
         gc.setFill(Color.BLACK);
         gc.fillOval(x - 115, y - 115, 230, 230);*/
 
-        drawRotatedImage(gc, GameImages.enemyShip, angle, x-100, y-110);
+        drawRotatedImage(gc, GameImages.enemyShip.getImage(), angle, x-100, y-110);
 
         gc.setFill(Color.LIGHTBLUE);
         gc.setFill(Color.RED);

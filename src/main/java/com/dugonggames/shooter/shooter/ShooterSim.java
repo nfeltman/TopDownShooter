@@ -195,7 +195,7 @@ public class ShooterSim{
     public void draw(ShooterState s, GraphicsContext gc, double width, double height) {
         GfxWrapper gfx = new GfxWrapper(gc);
 
-        gc.drawImage(GameImages.background, 0, 0);
+        gfx.drawImage(GameImages.background, new Vector2d(width / 2, height / 2));
 
         gc.setFill(Color.YELLOW);
         gc.fillArc(s.location.x - 25, s.location.y - 25, 50, 50 , 5, ((((double) s.buffsManager.buffTimeLeft(SPEED_BUFF)) / 500) * 360), ArcType.ROUND);
@@ -204,18 +204,18 @@ public class ShooterSim{
 
         if (s.buffsManager.buffTimeLeft(SHIELD_BUFF) % 50 > 10){
             gc.setFill(Color.LIGHTBLUE);
-            gc.fillOval(s.location.x - 15, s.location.y - 13, 30, 30);
+            gfx.fillCircle(s.location, 30);
             gc.setFill(Color.BLACK);
-            gc.fillOval(s.location.x - 13, s.location.y - 11, 26, 26);
+            gfx.fillCircle(s.location, 26);
         }
 
-        gc.drawImage(GameImages.friendlyShip, s.location.x-15, s.location.y-5);
+        gfx.drawImage(GameImages.friendlyShip, s.location);
 
         for (MovingPoint bullet : s.bullets){
-            gc.drawImage(GameImages.enemyBullet, bullet.location.x, bullet.location.y);
+            gfx.drawImage(GameImages.enemyBullet, bullet.location);
         }
         for (MovingPoint bullet : s.yourBullets){
-            gc.drawImage(GameImages.yourBullet, bullet.location.x, bullet.location.y);
+            gfx.drawImage(GameImages.yourBullet, bullet.location);
         }
         gc.setFill(Color.WHITE);
         gc.fillText(s.score + "", 20, 20);
@@ -228,23 +228,23 @@ public class ShooterSim{
 
         for (DropsManager.Drop drop : s.dropsManager.getCurrentDrops()){
             if (drop.dropType == SPEED_DROP)
-                gc.drawImage(GameImages.speedPw, drop.position.x - 3, drop.position.y - 3);
+                gfx.drawImage(GameImages.speedPw, drop.position);
             if (drop.dropType == SHIELD_DROP)
-                gc.drawImage(GameImages.shieldPw, drop.position.x - 3, drop.position.y - 3);
+                gfx.drawImage(GameImages.shieldPw, drop.position);
             if (drop.dropType == DAMAGE_DROP)
-                gc.drawImage(GameImages.damageBoost, drop.position.x - 3, drop.position.y - 3);
+                gfx.drawImage(GameImages.damageBoost, drop.position);
             if (drop.dropType == TRIPLESHOT_DROP)
-                gc.drawImage(GameImages.tripleShot, drop.position.x - 3, drop.position.y - 3);
+                gfx.drawImage(GameImages.tripleShot, drop.position);
         }
 
         if (s.inventory.hasAtLeastOne(SPEED_BOOST))
-            gc.drawImage(GameImages.speedPwBig, 10, height - 70);
+            gfx.drawImage(GameImages.speedPwBig, new Vector2d(10, height - 70));
         if (s.inventory.hasAtLeastOne(SHIELD))
-            gc.drawImage(GameImages.shieldPwBig, 85, height - 65);
+            gfx.drawImage(GameImages.shieldPwBig, new Vector2d(85, height - 65));
         if (s.inventory.hasAtLeastOne(DAMAGE_BOOST))
-            gc.drawImage(GameImages.damageBoostBig, 150, height - 70);
+            gfx.drawImage(GameImages.damageBoostBig, new Vector2d(150, height - 70));
         if (s.inventory.hasAtLeastOne(TRIPLE_SHOT))
-            gc.drawImage(GameImages.tripleShotBig, 220, height - 65);
+            gfx.drawImage(GameImages.tripleShotBig, new Vector2d(220, height - 65));
 
         gc.setFill(Color.WHITE);
         if (s.inventory.getCount(SPEED_BOOST) >= 2)

@@ -13,7 +13,7 @@ public class GfxWrapper {
     private GraphicsContext gc;
 
     public void setColor(Color c) {
-        // TODO: fill this in
+        gc.setFill(c);
     }
 
     public void fillWedge(Vector2d center, double radius, double startAngle, double endAngle) {
@@ -25,10 +25,10 @@ public class GfxWrapper {
     }
 
     public void fillCircle(Vector2d center, double radius) {
-        // TODO: fill this in
+        gc.fillOval(center.x - radius, center.y - radius, radius * 2, radius * 2);
     }
 
-    public void drawImage(Vector2d image, double center) {
-        // TODO: fill this in
+    public void drawImage(CenteredImage image, Vector2d center) {
+        gc.drawImage(image.getImage(), center.x - image.getCenter().x, center.y - image.getCenter().y);
     }
 }
