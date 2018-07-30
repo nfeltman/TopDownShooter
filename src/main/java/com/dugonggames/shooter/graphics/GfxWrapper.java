@@ -3,6 +3,7 @@ package com.dugonggames.shooter.graphics;
 import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,8 +21,9 @@ public class GfxWrapper {
         // TODO: fill this in
     }
 
-    public void fillArc(Vector2d center, double radius, double thickness, double startAngle, double endAngle) {
-        // TODO: fill this in
+    public void strokeArc(Vector2d center, double radius, double thickness, double startAngle, double endAngle) {
+        gc.setLineWidth(thickness);
+        gc.strokeArc(center.x - radius, center.y - radius, radius * 2, radius * 2, startAngle, endAngle, ArcType.OPEN);
     }
 
     public void fillCircle(Vector2d center, double radius) {

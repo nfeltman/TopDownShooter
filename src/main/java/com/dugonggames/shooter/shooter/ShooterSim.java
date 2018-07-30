@@ -197,10 +197,8 @@ public class ShooterSim{
 
         gfx.drawImage(GameImages.background, new Vector2d(width / 2, height / 2));
 
-        gc.setFill(Color.YELLOW);
-        gc.fillArc(s.location.x - 25, s.location.y - 25, 50, 50 , 5, ((((double) s.buffsManager.buffTimeLeft(SPEED_BUFF)) / 500) * 360), ArcType.ROUND);
-        gc.setFill(Color.BLACK);
-        gc.fillArc(s.location.x - 20, s.location.y - 20, 40, 40 , 0, ((((double) s.buffsManager.buffTimeLeft(SPEED_BUFF)) / 500) * 360), ArcType.ROUND);
+        gc.setStroke(Color.YELLOW);
+        gfx.strokeArc(s.location, 25, 5, 0, ((((double) s.buffsManager.buffTimeLeft(SPEED_BUFF)) / 500) * 360));
 
         if (s.buffsManager.buffTimeLeft(SHIELD_BUFF) % 50 > 10){
             gc.setFill(Color.LIGHTBLUE);
@@ -238,13 +236,13 @@ public class ShooterSim{
         }
 
         if (s.inventory.hasAtLeastOne(SPEED_BOOST))
-            gfx.drawImage(GameImages.speedPwBig, new Vector2d(10, height - 70));
+            gfx.drawImage(GameImages.speedPwBig, new Vector2d(30, height - 40));
         if (s.inventory.hasAtLeastOne(SHIELD))
-            gfx.drawImage(GameImages.shieldPwBig, new Vector2d(85, height - 65));
+            gfx.drawImage(GameImages.shieldPwBig, new Vector2d(85, height - 35));
         if (s.inventory.hasAtLeastOne(DAMAGE_BOOST))
-            gfx.drawImage(GameImages.damageBoostBig, new Vector2d(150, height - 70));
+            gfx.drawImage(GameImages.damageBoostBig, new Vector2d(150, height - 40));
         if (s.inventory.hasAtLeastOne(TRIPLE_SHOT))
-            gfx.drawImage(GameImages.tripleShotBig, new Vector2d(220, height - 65));
+            gfx.drawImage(GameImages.tripleShotBig, new Vector2d(220, height - 35));
 
         gc.setFill(Color.WHITE);
         if (s.inventory.getCount(SPEED_BOOST) >= 2)
