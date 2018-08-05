@@ -193,8 +193,7 @@ public class ShooterSim{
         return new MovingPoint(origin, velocity);
     }
 
-    public void draw(ShooterState s, GraphicsContext gc, double width, double height) {
-        GfxWrapper gfx = new GfxWrapper(gc);
+    public void draw(ShooterState s, GfxWrapper gfx, double width, double height) {
 
         gfx.drawImage(GameImages.background, new Vector2d(width / 2, height / 2));
 
@@ -222,7 +221,7 @@ public class ShooterSim{
 
         for (Ship ship : s.ships){
             double angle = s.location.subtract(ship.getLocation().location).getAngle();
-            ship.draw(gc, angle);
+            ship.draw(gfx, angle);
         }
 
         for (DropsManager.Drop drop : s.dropsManager.getCurrentDrops()){
