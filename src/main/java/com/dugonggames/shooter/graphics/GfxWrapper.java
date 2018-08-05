@@ -1,9 +1,12 @@
 package com.dugonggames.shooter.graphics;
 
+import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
+import javafx.scene.transform.Rotate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,10 +18,7 @@ public class GfxWrapper {
 
     public void setColor(Color c) {
         gc.setFill(c);
-    }
-
-    public void fillWedge(Vector2d center, double radius, double startAngle, double endAngle) {
-        // TODO: fill this in
+        gc.setStroke(c);
     }
 
     public void strokeArc(Vector2d center, double radius, double thickness, double startAngle, double endAngle) {
@@ -30,7 +30,27 @@ public class GfxWrapper {
         gc.fillOval(center.x - radius, center.y - radius, radius * 2, radius * 2);
     }
 
+    public void fillRect(Box rect){
+        gc.fillRect(rect.top, rect.left, rect.bottom - rect.top, rect.right - rect.left);
+    }
+
     public void drawImage(CenteredImage image, Vector2d center) {
         gc.drawImage(image.getImage(), center.x - image.getCenter().x, center.y - image.getCenter().y);
+    }
+
+    private void rotate(double angle, double px, double py) {
+        Rotate r = new Rotate(angle, px, py);
+        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+    }
+
+    public void drawRotatedImage(Image image, double angle, double tlpx, double tlpy) {
+        gc.save(); // saves the current state on stack, including the current transform
+        rotate(angle, tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2);
+        gc.drawImage(image, tlpx, tlpy);
+        gc.restore(); // back to original state (before rotation)
+    }
+
+    public void drawText(String text, Vector2d topLeft){
+        gc.fillText(text, topLeft.x, topLeft.y);
     }
 }

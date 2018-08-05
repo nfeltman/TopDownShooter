@@ -1,11 +1,12 @@
 package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.graphics.GameImages;
+import com.dugonggames.shooter.graphics.GfxWrapper;
+import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
+import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Rotate;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -16,34 +17,18 @@ public class Ship {
     int health;
 
     public void draw(GraphicsContext gc, double angle){
+        GfxWrapper gfx = new GfxWrapper(gc);
         double x = location.location.x;
         double y = location.location.y;
 
-        gc.setStroke(Color.LIGHTBLUE);
-        gc.setLineWidth(5);
-        gc.strokeOval(x-120, y-120, 240, 240);
-        /*gc.fillOval(x - 120, y - 120, 240, 240);
-        gc.setFill(Color.BLACK);
-        gc.fillOval(x - 115, y - 115, 230, 230);*/
+        gfx.setColor(Color.LIGHTBLUE);
+        gfx.strokeArc(new Vector2d(x, y), 120, 5, 0, 360);
 
-        drawRotatedImage(gc, GameImages.enemyShip.getImage(), angle, x-100, y-110);
+        gfx.drawRotatedImage(GameImages.enemyShip.getImage(), angle, x-100, y-110);
 
-        gc.setFill(Color.LIGHTBLUE);
-        gc.setFill(Color.RED);
-        gc.fillRect(x - 100, y - 70, 200, 10);
-        gc.setFill(Color.GREEN);
-        gc.fillRect(x - 100, y - 70, 200 * (health/20.0), 10);
-    }
-
-    public void rotate(GraphicsContext gc, double angle, double px, double py) {
-        Rotate r = new Rotate(angle, px, py);
-        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-    }
-
-    public void drawRotatedImage(GraphicsContext gc, Image image, double angle, double tlpx, double tlpy) {
-        gc.save(); // saves the current state on stack, including the current transform
-        rotate(gc, angle, tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2);
-        gc.drawImage(image, tlpx, tlpy);
-        gc.restore(); // back to original state (before rotation)
+        gfx.setColor(Color.RED);
+        gfx.fillRect(new Box(x - 100,  x + 100, y - 70,y - 60));
+        gfx.setColor(Color.GREEN);
+        gfx.fillRect(new Box(x - 100,  (x - 100) + 200 * (health/20.0),y - 70, y - 60));
     }
 }

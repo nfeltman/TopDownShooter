@@ -197,13 +197,13 @@ public class ShooterSim{
 
         gfx.drawImage(GameImages.background, new Vector2d(width / 2, height / 2));
 
-        gc.setStroke(Color.YELLOW);
+        gfx.setColor(Color.YELLOW);
         gfx.strokeArc(s.location, 25, 5, 0, ((((double) s.buffsManager.buffTimeLeft(SPEED_BUFF)) / 500) * 360));
 
         if (s.buffsManager.buffTimeLeft(SHIELD_BUFF) % 50 > 10){
-            gc.setFill(Color.LIGHTBLUE);
+            gfx.setColor(Color.LIGHTBLUE);
             gfx.fillCircle(s.location, 30);
-            gc.setFill(Color.BLACK);
+            gfx.setColor(Color.BLACK);
             gfx.fillCircle(s.location, 26);
         }
 
@@ -215,9 +215,9 @@ public class ShooterSim{
         for (MovingPoint bullet : s.yourBullets){
             gfx.drawImage(GameImages.yourBullet, bullet.location);
         }
-        gc.setFill(Color.WHITE);
-        gc.fillText(s.score + "", 20, 20);
-        gc.fillText("Max: " + s.maxScore, 100, 20);
+        gfx.setColor(Color.WHITE);
+        gfx.drawText(s.score + "", new Vector2d(20, 20));
+        gfx.drawText("Max: " + s.maxScore, new Vector2d(100, 20));
 
         for (Ship ship : s.ships){
             double angle = s.location.subtract(ship.getLocation().location).getAngle();
@@ -238,28 +238,28 @@ public class ShooterSim{
         if (s.inventory.hasAtLeastOne(SPEED_BOOST))
             gfx.drawImage(GameImages.speedPwBig, new Vector2d(30, height - 40));
         if (s.inventory.hasAtLeastOne(SHIELD))
-            gfx.drawImage(GameImages.shieldPwBig, new Vector2d(85, height - 35));
+            gfx.drawImage(GameImages.shieldPwBig, new Vector2d(87, height - 35));
         if (s.inventory.hasAtLeastOne(DAMAGE_BOOST))
             gfx.drawImage(GameImages.damageBoostBig, new Vector2d(150, height - 40));
         if (s.inventory.hasAtLeastOne(TRIPLE_SHOT))
             gfx.drawImage(GameImages.tripleShotBig, new Vector2d(220, height - 35));
 
-        gc.setFill(Color.WHITE);
+        gfx.setColor(Color.WHITE);
         if (s.inventory.getCount(SPEED_BOOST) >= 2)
-            gc.fillText(s.inventory.getCount(SPEED_BOOST) + "", 10, height - 70);
+            gfx.drawText(s.inventory.getCount(SPEED_BOOST) + "", new Vector2d(27, height - 70));
         if (s.inventory.getCount(SHIELD) >= 2)
-            gc.fillText(s.inventory.getCount(SHIELD) + "", 80, height - 70);
+            gfx.drawText(s.inventory.getCount(SHIELD) + "", new Vector2d(84, height - 70));
         if (s.inventory.getCount(DAMAGE_BOOST) >= 2)
-            gc.fillText(s.inventory.getCount(DAMAGE_BOOST) + "", 150, height - 70);
+            gfx.drawText(s.inventory.getCount(DAMAGE_BOOST) + "", new Vector2d(147, height - 70));
         if (s.inventory.getCount(TRIPLE_SHOT) >= 2)
-            gc.fillText(s.inventory.getCount(TRIPLE_SHOT) + "", 220, height - 70);
+            gfx.drawText(s.inventory.getCount(TRIPLE_SHOT) + "", new Vector2d(217, height - 70));
 
 
 
-        gc.setFill(Color.DARKRED);
+        gfx.setColor(Color.DARKRED);
         if (s.paused){
-            gc.fillRect(width/2 - 100, height/2 - 150, 50, 300);
-            gc.fillRect(width/2 + 50, height/2 - 150, 50, 300);
+            gfx.fillRect(new Box(width/2 - 100, width/2 - 50, height/2 - 150, height/2 + 150));
+            gfx.fillRect(new Box(width/2 + 50,width/2 + 100,height/2 - 150, height/2 + 150));
         }
     }
 }
