@@ -16,8 +16,7 @@ public class Ship {
     MovingPoint location;
     int health;
 
-    public void draw(GraphicsContext gc, double angle){
-        GfxWrapper gfx = new GfxWrapper(gc);
+    public void draw(GfxWrapper gfx, double angle){
         double x = location.location.x;
         double y = location.location.y;
 

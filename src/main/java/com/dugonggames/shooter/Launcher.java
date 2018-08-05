@@ -1,5 +1,6 @@
 package com.dugonggames.shooter;
 
+import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.shooter.ShooterSim;
 import com.dugonggames.shooter.shooter.ShooterState;
 import javafx.animation.AnimationTimer;
@@ -36,6 +37,7 @@ public class Launcher extends Application {
         root.getChildren().add( canvas );
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        GfxWrapper gfx = new GfxWrapper(gc);
 
         lastNanoTime = System.nanoTime();
         state = sim.init(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -55,7 +57,7 @@ public class Launcher extends Application {
                 mouseClicked = new ArrayList<MouseEvent>();
 
                 // draw
-                sim.draw(state, gc, CANVAS_WIDTH, CANVAS_HEIGHT);
+                sim.draw(state, gfx, CANVAS_WIDTH, CANVAS_HEIGHT);
             }
         }.start();
 
