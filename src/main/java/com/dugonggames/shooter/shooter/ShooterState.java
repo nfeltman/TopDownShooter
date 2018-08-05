@@ -1,5 +1,6 @@
 package com.dugonggames.shooter.shooter;
 
+import com.dugonggames.shooter.graphics.animations.AnimationManager;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
@@ -26,6 +27,7 @@ public class ShooterState {
     Inventory inventory;
     BuffsManager buffsManager;
     DropsManager dropsManager;
+    AnimationManager animationManager;
     boolean paused;
 
 }

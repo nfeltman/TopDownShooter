@@ -13,7 +13,7 @@ public class BlinkingCircle implements Animation {
     @Override
     public void drawFrame(GfxWrapper gfx, Vector2d loc, int frame) {
         if (frame % 10 < 5) {
-            gfx.setColor(Color.YELLOW);
+            gfx.setColor(Color.ORANGE);
             gfx.fillCircle(loc, 10);
         }
     }
