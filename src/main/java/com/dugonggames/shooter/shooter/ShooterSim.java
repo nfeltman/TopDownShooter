@@ -25,7 +25,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new ArrayList<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 2, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -33,7 +33,9 @@ public class ShooterSim{
         Vector2d nextLoc = s.location;
         double nextTime = s.time + dt;
         int nextScore = s.score + 1;
-        ArrayList<MovingPoint> nextBullets = new ArrayList<>();
+        BulletSet nextBulletSet = new BulletSet();
+        final BulletSet nextBulletSetC = nextBulletSet;
+        s.bullets.applyAll(b->nextBulletSetC.add(b));
 
 
         ArrayList<Ship> nextShips = new ArrayList<>();
@@ -42,7 +44,7 @@ public class ShooterSim{
             nextShips.add(new Ship(nextEnemyLoc, ship.getHealth()));
 
             if (s.bulletTimer == 0)
-                nextBullets.add(makeBullet(nextLoc, nextEnemyLoc.location));
+                nextBulletSet.add(makeBullet(nextLoc, nextEnemyLoc.location));
         }
         if (s.shipTimer == 0){
             Vector2d nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
@@ -83,10 +85,6 @@ public class ShooterSim{
 
         for (int i = 0; i < s.yourBullets.size(); i++){
             boolean collided = false;
-            for (int j = 0; j < nextBullets.size(); j++){
-                if (Vector2d.distance(s.yourBullets.get(i).location, nextBullets.get(j).location) < 4)
-                    nextBullets.remove(j);
-            }
             for (int j = 0; j < nextShips.size(); j++){
                 if (Vector2d.distance(s.yourBullets.get(i).location, nextShips.get(j).getLocation().location) <= 120){
                     nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
@@ -164,22 +162,18 @@ public class ShooterSim{
         else if (nextScore <= 10000) nextShipTimer %= 250;
         else nextShipTimer %= 200;
 
-        for (MovingPoint bullet : s.bullets) {
-            if (bullet.location.inBox(s.playArea))
-                nextBullets.add(bullet.step(dt));
-            if (Vector2d.distance(bullet.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)) {
-                nextBullets.clear();
-                nextTime = 0;
-                nextScore = 0;
-                nextShips.clear();
-                break;
-            }
+        nextBulletSet = nextBulletSet.filter(b->b.location.inBox(s.playArea));
+        nextBulletSet = nextBulletSet.map(b->b.step(dt));
+        if (nextBulletSet.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
+            nextBulletSet = new BulletSet();
+            nextShips.clear();
+            nextScore = 0;
         }
 
         s.buffsManager.tickTimer();
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBullets, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 1, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
         else {
             s.paused = true;
             return s;
@@ -211,9 +205,8 @@ public class ShooterSim{
 
         gfx.drawImage(GameImages.friendlyShip, s.location);
 
-        for (MovingPoint bullet : s.bullets){
-            gfx.drawImage(GameImages.enemyBullet, bullet.location);
-        }
+        s.bullets.applyAll(b->gfx.drawImage(GameImages.enemyBullet, b.location));
+
         for (MovingPoint bullet : s.yourBullets){
             gfx.drawImage(GameImages.yourBullet, bullet.location);
         }
