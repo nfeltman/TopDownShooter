@@ -6,6 +6,8 @@ import lombok.Value;
 
 import java.util.ArrayList;
 
+import static com.dugonggames.shooter.shooter.DropsManager.DropType.*;
+
 @Getter
 public class DropsManager {
 
@@ -36,5 +38,20 @@ public class DropsManager {
                 i--;
             }
         return pickedUp;
+    }
+
+    public static DropsManager.DropType getRandomDrop() {
+        DropsManager.DropType random_drop;
+        double whichPw = Math.random();
+        if (whichPw < 0.25)
+            random_drop = SPEED_DROP;
+        else if (whichPw < 0.50)
+            random_drop = SHIELD_DROP;
+        else if (whichPw < 0.75)
+            random_drop = DAMAGE_DROP;
+        else
+            random_drop = TRIPLESHOT_DROP;
+
+        return random_drop;
     }
 }

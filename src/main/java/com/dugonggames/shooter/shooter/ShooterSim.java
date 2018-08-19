@@ -100,16 +100,9 @@ public class ShooterSim{
                 yourNextBullets.add(s.yourBullets.get(i).step(dt));
         }
 
+
         if (s.pwTimer == 0) {
-            double whichPw = Math.random();
-            if (whichPw < 0.25)
-                s.dropsManager.placeDrop(new DropsManager.Drop(SPEED_DROP, s.enemyShipArea.randomPoint()));
-            else if (whichPw < 0.50)
-                s.dropsManager.placeDrop(new DropsManager.Drop(SHIELD_DROP, s.enemyShipArea.randomPoint()));
-            else if (whichPw < 0.75)
-                s.dropsManager.placeDrop(new DropsManager.Drop(DAMAGE_DROP, s.enemyShipArea.randomPoint()));
-            else
-                s.dropsManager.placeDrop(new DropsManager.Drop(TRIPLESHOT_DROP, s.enemyShipArea.randomPoint()));
+            s.dropsManager.placeDrop(new DropsManager.Drop(DropsManager.getRandomDrop(), s.enemyShipArea.randomPoint()));
         }
 
         ArrayList<DropsManager.Drop> pickedUpDrops = s.dropsManager.pickUpDrops(s.location);
