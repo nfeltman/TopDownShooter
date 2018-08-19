@@ -15,7 +15,7 @@ public class AnimationManager {
         private AnimatedMoment(Animation animation, Vector2d location){
             this.animation = animation;
             this.frame = 0;
-            this.location = location
+            this.location = location;
         }
 
         private void increment(){
@@ -26,7 +26,7 @@ public class AnimationManager {
     ArrayList<AnimatedMoment> activeAnimations;
 
     public AnimationManager(){
-        activeAnimations = new ArrayList<AnimatedMoment>;
+        activeAnimations = new ArrayList<AnimatedMoment>();
     }
 
     public void addAnimation(Animation animation, Vector2d location) {
