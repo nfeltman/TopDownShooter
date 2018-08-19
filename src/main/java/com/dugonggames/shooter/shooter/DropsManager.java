@@ -33,7 +33,7 @@ public class DropsManager {
     public ArrayList<Drop> pickUpDrops(Vector2d playerLoc) {
         ArrayList<Drop> pickedUp = new ArrayList<>();
         for (int i = 0; i < currentDrops.size(); i++)
-            if (Vector2d.distance(currentDrops.get(i).position, playerLoc) < 10) {
+            if (Vector2d.distance(currentDrops.get(i).position, playerLoc) < 20) {
                 pickedUp.add(currentDrops.remove(i));
                 i--;
             }
