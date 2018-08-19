@@ -45,6 +45,10 @@ public class ShooterSim{
 
             if (s.bulletTimer == 0)
                 nextBulletSet.add(BulletSpawner.makeBullet(nextLoc, nextEnemyLoc.location));
+
+
+                //nextBulletSet = CircleAttack(nextBulletSet, nextLoc, nextEnemyLoc.location, 8);
+                // This method doesnt work- no pauses in between bullets
         }
         if (s.shipTimer == 0){
             Vector2d nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
@@ -244,7 +248,14 @@ public class ShooterSim{
 
     public BulletSet CircleAttack(BulletSet b, Vector2d target, Vector2d origin, int number) {
 
-    return b;
+        for (int i = 0; i < number; i++){
+            Vector2d relativetarget = target.subtract(origin).normalize().scale(300).rotate(i*2*6.283185/number);
+
+            MovingPoint bullet = new MovingPoint(origin, relativetarget);
+            b.add(bullet);
+        }
+
+        return b;
     }
 }
 
