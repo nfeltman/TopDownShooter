@@ -44,7 +44,7 @@ public class ShooterSim{
             nextShips.add(new Ship(nextEnemyLoc, ship.getHealth()));
 
             if (s.bulletTimer == 0)
-                nextBulletSet.add(makeBullet(nextLoc, nextEnemyLoc.location));
+                nextBulletSet.add(BulletSpawner.makeBullet(nextLoc, nextEnemyLoc.location));
         }
         if (s.shipTimer == 0){
             Vector2d nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
@@ -171,15 +171,6 @@ public class ShooterSim{
             s.paused = true;
             return s;
         }
-    }
-
-    private MovingPoint makeBullet(Vector2d target, Vector2d origin){
-        Vector2d velocity;
-        velocity = target.subtract(origin);
-        velocity = velocity.normalize();
-        velocity = velocity.scale(300);
-
-        return new MovingPoint(origin, velocity);
     }
 
     public void draw(ShooterState s, GfxWrapper gfx, double width, double height) {
