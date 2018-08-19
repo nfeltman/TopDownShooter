@@ -241,4 +241,10 @@ public class ShooterSim{
             gfx.fillRect(new Box(width/2 + 50,width/2 + 100,height/2 - 150, height/2 + 150));
         }
     }
+
+    public BulletSet CircleAttack(BulletSet b, Vector2d target, Vector2d origin, int number) {
+
+    return b;
+    }
 }
+

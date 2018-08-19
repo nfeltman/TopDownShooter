@@ -27,6 +27,8 @@ public class Vector2d {
         return new Vector2d(x * scalar, y * scalar);
     }
 
+    public Vector2d rotate (double theta) { return new Vector2d(x*Math.cos(theta) - y*Math.sin(theta),x*Math.sin(theta) + y*Math.cos(theta)); }
+
     public static double distance(Vector2d p1, Vector2d p2){
         return Math.sqrt(((p2.x-p1.x)*(p2.x-p1.x)) + ((p2.y-p1.y)*(p2.y-p1.y)));
     }
