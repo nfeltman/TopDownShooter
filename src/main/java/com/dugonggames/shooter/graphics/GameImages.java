@@ -1,6 +1,9 @@
 package com.dugonggames.shooter.graphics;
 
+import com.dugonggames.shooter.graphics.animations.ImageSequence;
 import javafx.scene.image.Image;
+
+import java.util.ArrayList;
 
 public class GameImages {
     public static CenteredImage background;
@@ -16,6 +19,7 @@ public class GameImages {
     public static CenteredImage damageBoostBig;
     public static CenteredImage tripleShot;
     public static CenteredImage tripleShotBig;
+    public static ImageSequence explosionSequence;
 
     public static void loadImages(){
         background = new CenteredImage(new Image("file:resources/background.png"));
@@ -31,5 +35,7 @@ public class GameImages {
         damageBoostBig = new CenteredImage(new Image("file:resources/damageBoost.png", 60, 60, true, true));
         tripleShot = new CenteredImage(new Image("file:resources/tripleShot.png", 20, 20, true, true));
         tripleShotBig = new CenteredImage(new Image("file:resources/tripleShot.png", 50, 50, true, true));
+        explosionSequence = new ImageSequence(ImageSequence.createSequence(new Image("file:resources/explosion 1s.png", 4096, 4096, true, true), 8, 8, 0));
+
     }
 }

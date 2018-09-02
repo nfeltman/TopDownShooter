@@ -4,6 +4,7 @@ import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.graphics.animations.AnimationManager;
 import com.dugonggames.shooter.graphics.animations.BlinkingCircle;
+import com.dugonggames.shooter.graphics.animations.ImageSequence;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
@@ -92,7 +93,7 @@ public class ShooterSim{
             for (int j = 0; j < nextShips.size(); j++){
                 if (Vector2d.distance(s.yourBullets.get(i).location, nextShips.get(j).getLocation().location) <= 120){
                     nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
-                    s.animationManager.addAnimation(new BlinkingCircle(), s.yourBullets.get(i).location);
+                    s.animationManager.addAnimation(GameImages.explosionSequence, s.yourBullets.get(i).location);
                     if (nextShips.get(j).getHealth() <= 0){
                         nextShips.remove(j);
                         nextScore += 500;
