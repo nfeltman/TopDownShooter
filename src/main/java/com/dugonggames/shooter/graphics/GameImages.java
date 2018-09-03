@@ -35,7 +35,7 @@ public class GameImages {
         damageBoostBig = new CenteredImage(new Image("file:resources/damageBoost.png", 60, 60, true, true));
         tripleShot = new CenteredImage(new Image("file:resources/tripleShot.png", 20, 20, true, true));
         tripleShotBig = new CenteredImage(new Image("file:resources/tripleShot.png", 50, 50, true, true));
-        explosionSequence = new ImageSequence(ImageSequence.createSequence(new Image("file:resources/explosion 1s.png", 4096, 4096, true, true), 8, 8, 0));
+        explosionSequence = new ImageSequence(ImageSequence.createSequence(new Image("file:resources/explosion1.png", 4096, 4096, true, true), 8, 8, 0));
 
     }
 }
