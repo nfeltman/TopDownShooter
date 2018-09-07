@@ -21,6 +21,7 @@ public class ShooterState {
     int maxScore;
     ArrayList<MovingPoint> yourBullets;
     ArrayList<Ship> ships;
+    ArrayList<HomingMissile> homingMissiles;
     int bulletTimer;
     int shipTimer;
     int pwTimer;

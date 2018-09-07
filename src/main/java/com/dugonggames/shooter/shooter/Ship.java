@@ -15,6 +15,7 @@ import lombok.Value;
 public class Ship {
     MovingPoint location;
     int health;
+    int missileTimer;
 
     public void draw(GfxWrapper gfx, double angle){
         double x = location.location.x;

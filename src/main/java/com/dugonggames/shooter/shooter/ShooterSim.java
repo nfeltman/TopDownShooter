@@ -26,7 +26,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), 0, 0, 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), 0, 0 , 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -40,13 +40,15 @@ public class ShooterSim{
 
 
         ArrayList<Ship> nextShips = new ArrayList<>();
+        ArrayList<HomingMissile> nextHomingMissiles = HomingMissile.advanceHomingMissiles(nextLoc, s.homingMissiles, dt);
         for (Ship ship : s.ships){
             MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(s.enemyShipArea);
-            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth()));
+            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth(), (ship.getMissileTimer() + 1) % 400));
+            if (ship.getMissileTimer() == 399)
+                nextHomingMissiles.add(new HomingMissile(nextLoc, nextEnemyLoc.location, 3));
 
             if (s.bulletTimer == 0)
                 nextBulletSet.add(BulletSpawner.makeBullet(nextLoc, nextEnemyLoc.location));
-
 
                 //nextBulletSet = CircleAttack(nextBulletSet, nextLoc, nextEnemyLoc.location, 8);
                 // This method doesnt work- no pauses in between bullets
@@ -60,7 +62,7 @@ public class ShooterSim{
             while (Math.abs(nextShipVelocity.x) < 100 && Math.abs(nextShipVelocity.x) < 66){
                 nextShipVelocity = new Vector2d(((Math.random()-0.5)*200), ((Math.random()-0.5)*200));
             }
-            nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20));
+            nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20, 0));
         }
 
         ArrayList<MovingPoint> yourNextBullets = new ArrayList<>();
@@ -92,11 +94,22 @@ public class ShooterSim{
             boolean collided = false;
             for (int j = 0; j < nextShips.size(); j++){
                 if (Vector2d.distance(s.yourBullets.get(i).location, nextShips.get(j).getLocation().location) <= 120){
-                    nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
+                    nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1), nextShips.get(j).getMissileTimer()));
                     s.animationManager.addAnimation(GameImages.explosionSequence, s.yourBullets.get(i).location);
                     if (nextShips.get(j).getHealth() <= 0){
                         nextShips.remove(j);
                         nextScore += 500;
+                    }
+                    collided = true;
+                }
+            }
+            for (int j = 0; j < nextHomingMissiles.size(); j++){
+                if (Vector2d.distance(s.yourBullets.get(i).location, nextHomingMissiles.get(j).location.location) <= 8){
+                    nextHomingMissiles.set(j,  new HomingMissile(s.location, nextHomingMissiles.get(j).location.location, nextHomingMissiles.get(j).health - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
+                    s.animationManager.addAnimation(GameImages.explosionSequence, s.yourBullets.get(i).location);
+                    if (nextHomingMissiles.get(j).health <= 0){
+                        nextHomingMissiles.remove(j);
+                        nextScore += 50;
                     }
                     collided = true;
                 }
@@ -165,13 +178,23 @@ public class ShooterSim{
         if (nextBulletSet.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
             nextBulletSet = new BulletSet();
             nextShips.clear();
+            nextHomingMissiles.clear();
             nextScore = 0;
+        }
+        for (HomingMissile missile : nextHomingMissiles){
+            if (Vector2d.distance(missile.location.location, s.location) <= 5){
+                nextBulletSet = new BulletSet();
+                nextShips.clear();
+                nextHomingMissiles.clear();
+                nextScore = 0;
+                break;
+            }
         }
 
         s.buffsManager.tickTimer();
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, (s.bulletTimer + 1) % 10, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, (s.bulletTimer + 1) % 10, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
         else {
             s.paused = true;
             return s;
@@ -198,6 +221,12 @@ public class ShooterSim{
 
         for (MovingPoint bullet : s.yourBullets){
             gfx.drawImage(GameImages.yourBullet, bullet.location);
+        }
+
+        for (HomingMissile missile : s.homingMissiles){
+            System.out.println("k");
+            gfx.setColor(Color.RED);
+            gfx.fillCircle(missile.location.location, 5);
         }
         gfx.setColor(Color.WHITE);
         gfx.drawText(s.score + "", new Vector2d(20, 20));
