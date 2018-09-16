@@ -27,8 +27,8 @@ public class Ship {
         gfx.drawRotatedImage(GameImages.enemyShip.getImage(), angle, x-100, y-110);
 
         gfx.setColor(Color.RED);
-        gfx.fillRect(new Box(x - 100,  x + 100, y - 70,y - 60));
+        gfx.fillRect(new Box(y - 70,y - 60, x - 100,  x + 100));
         gfx.setColor(Color.GREEN);
-        gfx.fillRect(new Box(x - 100,  (x - 100) + 200 * (health/20.0),y - 70, y - 60));
+        gfx.fillRect(new Box(y - 70, y - 60,x - 100,  (x - 100) + 200 * (health/20.0)));
     }
 }

@@ -48,6 +48,7 @@ public class Vector2d {
     public double dotProduct(Vector2d other) { return dotProduct(this,other); }
 
     public Vector2d normalize(){
+        if (lengthSq() == 0) return this;
         return scale(1/Math.sqrt(lengthSq()));
     }
 

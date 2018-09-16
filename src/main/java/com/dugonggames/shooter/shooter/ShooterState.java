@@ -22,6 +22,7 @@ public class ShooterState {
     ArrayList<MovingPoint> yourBullets;
     ArrayList<Ship> ships;
     ArrayList<HomingMissile> homingMissiles;
+    ArrayList<RookBomb> rookBombs;
     int bulletTimer;
     int shipTimer;
     int pwTimer;

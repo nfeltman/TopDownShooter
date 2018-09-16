@@ -31,14 +31,14 @@ public class GfxWrapper {
     }
 
     public void fillRect(Box rect){
-        gc.fillRect(rect.top, rect.left, rect.bottom - rect.top, rect.right - rect.left);
+        gc.fillRect(rect.top, rect.left,  rect.right - rect.left, rect.bottom - rect.top);
     }
 
     public void drawImage(CenteredImage image, Vector2d center) {
         gc.drawImage(image.getImage(), center.x - image.getCenter().x, center.y - image.getCenter().y);
     }
-
     private void rotate(double angle, double px, double py) {
+
         Rotate r = new Rotate(angle, px, py);
         gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
     }

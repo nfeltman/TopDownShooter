@@ -8,6 +8,8 @@ import java.util.ArrayList;
 public class GameImages {
     public static CenteredImage background;
     public static CenteredImage enemyShip;
+    public static CenteredImage homingMissile;
+    public static CenteredImage rookBomb;
     public static CenteredImage friendlyShip;
     public static CenteredImage yourBullet;
     public static CenteredImage enemyBullet;
@@ -24,6 +26,8 @@ public class GameImages {
     public static void loadImages(){
         background = new CenteredImage(new Image("file:resources/background.png"));
         enemyShip = new CenteredImage(new Image("file:resources/enemy_spaceship.png"));
+        homingMissile = new CenteredImage(new Image("file:resources/homingMissile.png", 60, 60, true, true));
+        rookBomb = new CenteredImage(new Image("file:resources/RookBomb.png", 30, 30, true, true));
         friendlyShip = new CenteredImage(new Image("file:resources/friendly_spaceship.png", 30, 30, true, true));
         yourBullet = new CenteredImage(new Image("file:resources/yourBullet.png", 20, 20, true, true));
         enemyBullet = new CenteredImage(new Image("file:resources/enemyBullet.png", 20, 20, true, true));

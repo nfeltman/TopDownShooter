@@ -17,7 +17,7 @@ public class HomingMissile {
     public static ArrayList<HomingMissile> advanceHomingMissiles(Vector2d target, ArrayList<HomingMissile> missiles, double dt){
         ArrayList<HomingMissile> nextMissiles = new ArrayList<>();
         for (HomingMissile missile : missiles){
-            nextMissiles.add(new HomingMissile(target, missile.location.step(dt).location, missile.health));
+            nextMissiles.add(new HomingMissile(target, missile.location.step((3*dt)/4).location, missile.health));
         }
         return nextMissiles;
     }

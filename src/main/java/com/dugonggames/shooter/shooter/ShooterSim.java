@@ -11,6 +11,7 @@ import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
@@ -26,7 +27,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), 0, 0 , 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new ArrayList<RookBomb>(), 0, 0 , 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -66,9 +67,30 @@ public class ShooterSim{
         }
 
         ArrayList<MovingPoint> yourNextBullets = new ArrayList<>();
+        ArrayList<RookBomb> nextRookBombs = new ArrayList<>();
+        for (RookBomb bomb : s.rookBombs){
+            if (bomb.time > 0)
+                nextRookBombs.add(new RookBomb(bomb.location, bomb.time - dt));
+            if (bomb.time < 0.3){
+                for (int i = 0; i < nextShips.size(); i++){
+                    if (Math.abs(nextShips.get(i).getLocation().location.x - bomb.location.x) < 120 || Math.abs(nextShips.get(i).getLocation().location.y - bomb.location.y) < 120) {
+                        nextShips.set(i, new Ship(nextShips.get(i).getLocation(), nextShips.get(i).getHealth() - 5, nextShips.get(i).getMissileTimer()));
+                        if (nextShips.get(i).getHealth() <= 0)
+                            nextShips.remove(i);
+                    }
+                }
+                for (int i = 0; i < s.homingMissiles.size(); i++){
+                    if (Math.abs(s.homingMissiles.get(i).location.location.x - bomb.location.x) < 30 || Math.abs(s.homingMissiles.get(i).location.location.y - bomb.location.y) < 10) {
+                        s.homingMissiles.set(i, new HomingMissile(s.location, s.homingMissiles.get(i).location.location, s.homingMissiles.get(i).health - 1));
+                        if (s.homingMissiles.get(i).health <= 0)
+                            s.homingMissiles.remove(i);
+                    }
+                }
+        }
+        }
 
         for (MouseEvent event : mouseClicks){
-            if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)){
+            if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.PRIMARY)){
                 double x = event.getX();
                 double y = event.getY();
 
@@ -87,6 +109,11 @@ public class ShooterSim{
                     nextVelocity = nextVelocity.rotateNegativePiOver8().rotateNegativePiOver8();
                     yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
                 }
+            } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.SECONDARY)){
+                double x = event.getX();
+                double y = event.getY();
+
+                nextRookBombs.add(new RookBomb(s.location, 2.3));
             }
         }
 
@@ -104,7 +131,7 @@ public class ShooterSim{
                 }
             }
             for (int j = 0; j < nextHomingMissiles.size(); j++){
-                if (Vector2d.distance(s.yourBullets.get(i).location, nextHomingMissiles.get(j).location.location) <= 8){
+                if (Vector2d.distance(s.yourBullets.get(i).location, nextHomingMissiles.get(j).location.location) <= 16){
                     nextHomingMissiles.set(j,  new HomingMissile(s.location, nextHomingMissiles.get(j).location.location, nextHomingMissiles.get(j).health - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
                     s.animationManager.addAnimation(GameImages.explosionSequence, s.yourBullets.get(i).location);
                     if (nextHomingMissiles.get(j).health <= 0){
@@ -161,10 +188,14 @@ public class ShooterSim{
                 s.buffsManager.activateBuff(TRIPLESHOT_BUFF, 500);
             }
         }
-        if (s.wasd.wPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y - s.speed);
-        if (s.wasd.aPressed) nextLoc = new Vector2d(nextLoc.x - s.speed, nextLoc.y );
-        if (s.wasd.sPressed) nextLoc = new Vector2d(nextLoc.x, nextLoc.y + s.speed);
-        if (s.wasd.dPressed) nextLoc = new Vector2d(nextLoc.x + s.speed, nextLoc.y);
+
+        Vector2d nextMoveTo = new Vector2d(0, 0);
+        if (s.wasd.wPressed) nextMoveTo = new Vector2d(nextMoveTo.x, nextMoveTo.y - s.speed);
+        if (s.wasd.aPressed) nextMoveTo = new Vector2d(nextMoveTo.x - s.speed, nextMoveTo.y);
+        if (s.wasd.sPressed) nextMoveTo = new Vector2d(nextMoveTo.x, nextMoveTo.y + s.speed);
+        if (s.wasd.dPressed) nextMoveTo = new Vector2d(nextMoveTo.x + s.speed, nextMoveTo.y);
+        nextMoveTo = nextMoveTo.normalize();
+        nextLoc = nextLoc.add(nextMoveTo.scale(s.speed));
 
         int nextShipTimer = s.shipTimer + 1;
         if (nextScore <= 2500) nextShipTimer %= 500;
@@ -182,7 +213,7 @@ public class ShooterSim{
             nextScore = 0;
         }
         for (HomingMissile missile : nextHomingMissiles){
-            if (Vector2d.distance(missile.location.location, s.location) <= 5){
+            if (Vector2d.distance(missile.location.location, s.location) <= 5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)){
                 nextBulletSet = new BulletSet();
                 nextShips.clear();
                 nextHomingMissiles.clear();
@@ -194,7 +225,7 @@ public class ShooterSim{
         s.buffsManager.tickTimer();
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, (s.bulletTimer + 1) % 10, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, nextRookBombs, (s.bulletTimer + 1) % 10, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
         else {
             s.paused = true;
             return s;
@@ -224,10 +255,20 @@ public class ShooterSim{
         }
 
         for (HomingMissile missile : s.homingMissiles){
-            System.out.println("k");
-            gfx.setColor(Color.RED);
-            gfx.fillCircle(missile.location.location, 5);
+            double angle = s.location.subtract(missile.location.location).getAngle();
+            gfx.drawRotatedImage(GameImages.homingMissile.getImage(), angle + 90, missile.location.location.x, missile.location.location.y);
         }
+
+        for (RookBomb bomb : s.rookBombs){
+            if (bomb.time > 0.3){
+                gfx.drawImage(GameImages.rookBomb, bomb.location);
+            } else {
+                gfx.setColor(new Color(1, 0, 0, Math.max(0, (bomb.time / 0.3))));
+                gfx.fillRect(new Box(bomb.location.y - 3, bomb.location.y + 3, 0, width));
+                gfx.fillRect(new Box(0, height, bomb.location.x - 3, bomb.location.x + 3));
+            }
+        }
+
         gfx.setColor(Color.WHITE);
         gfx.drawText(s.score + "", new Vector2d(20, 20));
         gfx.drawText("Max: " + s.maxScore, new Vector2d(100, 20));
@@ -271,8 +312,8 @@ public class ShooterSim{
 
         gfx.setColor(Color.DARKRED);
         if (s.paused){
-            gfx.fillRect(new Box(width/2 - 100, width/2 - 50, height/2 - 150, height/2 + 150));
-            gfx.fillRect(new Box(width/2 + 50,width/2 + 100,height/2 - 150, height/2 + 150));
+            gfx.fillRect(new Box(height/2 - 150, height/2 + 150, width/2 - 100, width/2 - 50));
+            gfx.fillRect(new Box(height/2 - 150,height/2 + 150,width/2 + 50, width/2 + 100));
         }
     }
 
