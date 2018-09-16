@@ -37,7 +37,7 @@ public class Launcher extends Application {
         root.getChildren().add( canvas );
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        GfxWrapper gfx = new GfxWrapper(gc);
+        GfxWrapper gfx = new GfxWrapper(gc, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         lastNanoTime = System.nanoTime();
         state = sim.init(CANVAS_WIDTH, CANVAS_HEIGHT);

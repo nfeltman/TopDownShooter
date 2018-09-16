@@ -15,6 +15,8 @@ public class GfxWrapper {
 
     @Getter
     private GraphicsContext gc;
+    public final double width;
+    public final double height;
 
     public void setColor(Color c) {
         gc.setFill(c);

@@ -3,25 +3,21 @@ package com.dugonggames.shooter.shooter;
 import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.graphics.animations.AnimationManager;
-import com.dugonggames.shooter.graphics.animations.BlinkingCircle;
-import com.dugonggames.shooter.graphics.animations.ImageSequence;
 import com.dugonggames.shooter.graphics.animations.RookLaser;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
 
 import java.util.ArrayList;
 
-import static com.dugonggames.shooter.shooter.Inventory.Item.*;
 import static com.dugonggames.shooter.shooter.BuffsManager.BuffType.*;
 import static com.dugonggames.shooter.shooter.DropsManager.DropType.*;
+import static com.dugonggames.shooter.shooter.Inventory.Item.*;
 
 public class ShooterSim{
 
@@ -80,11 +76,11 @@ public class ShooterSim{
                             nextShips.remove(i);
                     }
                 }
-                for (int i = 0; i < s.homingMissiles.size(); i++){
-                    if (Math.abs(s.homingMissiles.get(i).location.location.x - bomb.location.x) < 30 || Math.abs(s.homingMissiles.get(i).location.location.y - bomb.location.y) < 10) {
-                        s.homingMissiles.set(i, new HomingMissile(s.location, s.homingMissiles.get(i).location.location, s.homingMissiles.get(i).health - 1));
-                        if (s.homingMissiles.get(i).health <= 0)
-                            s.homingMissiles.remove(i);
+                for (int i = 0; i < nextHomingMissiles.size(); i++){
+                    if (Math.abs(nextHomingMissiles.get(i).location.location.x - bomb.location.x) < 30 || Math.abs(nextHomingMissiles.get(i).location.location.y - bomb.location.y) < 10) {
+                        nextHomingMissiles.set(i, new HomingMissile(s.location, nextHomingMissiles.get(i).location.location, nextHomingMissiles.get(i).health - 1));
+                        if (nextHomingMissiles.get(i).health <= 0)
+                            nextHomingMissiles.remove(i);
                     }
                 }
                 s.animationManager.addAnimation(new RookLaser(), bomb.location);
@@ -115,7 +111,8 @@ public class ShooterSim{
                 double x = event.getX();
                 double y = event.getY();
 
-                nextRookBombs.add(new RookBomb(s.location, 2));
+                if (nextRookBombs.size() == 0)
+                    nextRookBombs.add(new RookBomb(s.location, 2));
             }
         }
 
