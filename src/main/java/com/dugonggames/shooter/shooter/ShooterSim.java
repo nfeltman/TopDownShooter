@@ -5,6 +5,7 @@ import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.graphics.animations.AnimationManager;
 import com.dugonggames.shooter.graphics.animations.BlinkingCircle;
 import com.dugonggames.shooter.graphics.animations.ImageSequence;
+import com.dugonggames.shooter.graphics.animations.RookLaser;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
@@ -71,7 +72,7 @@ public class ShooterSim{
         for (RookBomb bomb : s.rookBombs){
             if (bomb.time > 0)
                 nextRookBombs.add(new RookBomb(bomb.location, bomb.time - dt));
-            if (bomb.time < 0.3){
+            else {
                 for (int i = 0; i < nextShips.size(); i++){
                     if (Math.abs(nextShips.get(i).getLocation().location.x - bomb.location.x) < 120 || Math.abs(nextShips.get(i).getLocation().location.y - bomb.location.y) < 120) {
                         nextShips.set(i, new Ship(nextShips.get(i).getLocation(), nextShips.get(i).getHealth() - 5, nextShips.get(i).getMissileTimer()));
@@ -86,7 +87,8 @@ public class ShooterSim{
                             s.homingMissiles.remove(i);
                     }
                 }
-        }
+                s.animationManager.addAnimation(new RookLaser(), bomb.location);
+            }
         }
 
         for (MouseEvent event : mouseClicks){
@@ -113,7 +115,7 @@ public class ShooterSim{
                 double x = event.getX();
                 double y = event.getY();
 
-                nextRookBombs.add(new RookBomb(s.location, 2.3));
+                nextRookBombs.add(new RookBomb(s.location, 2));
             }
         }
 
@@ -260,13 +262,7 @@ public class ShooterSim{
         }
 
         for (RookBomb bomb : s.rookBombs){
-            if (bomb.time > 0.3){
-                gfx.drawImage(GameImages.rookBomb, bomb.location);
-            } else {
-                gfx.setColor(new Color(1, 0, 0, Math.max(0, (bomb.time / 0.3))));
-                gfx.fillRect(new Box(bomb.location.y - 3, bomb.location.y + 3, 0, width));
-                gfx.fillRect(new Box(0, height, bomb.location.x - 3, bomb.location.x + 3));
-            }
+            gfx.drawImage(GameImages.rookBomb, bomb.location);
         }
 
         gfx.setColor(Color.WHITE);

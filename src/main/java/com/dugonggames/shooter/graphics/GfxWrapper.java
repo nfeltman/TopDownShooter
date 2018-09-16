@@ -31,7 +31,7 @@ public class GfxWrapper {
     }
 
     public void fillRect(Box rect){
-        gc.fillRect(rect.top, rect.left,  rect.right - rect.left, rect.bottom - rect.top);
+        gc.fillRect(rect.left, rect.top,  rect.right - rect.left, rect.bottom - rect.top);
     }
 
     public void drawImage(CenteredImage image, Vector2d center) {
