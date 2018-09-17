@@ -34,9 +34,14 @@ public class AnimationManager {
     }
 
     // draws all animations, and advances by a frame
-    public void drawAndAdvance(GfxWrapper gfx) {
+    public void draw(GfxWrapper gfx) {
         for (int i = 0; i < activeAnimations.size(); i++){
             activeAnimations.get(i).animation.drawFrame(gfx, activeAnimations.get(i).location, activeAnimations.get(i).frame);
+        }
+    }
+
+    public void advance(){
+        for (int i = 0; i < activeAnimations.size(); i++){
             activeAnimations.get(i).increment();
             if (activeAnimations.get(i).frame > activeAnimations.get(i).animation.getNumFrames())
                 activeAnimations.remove(i);

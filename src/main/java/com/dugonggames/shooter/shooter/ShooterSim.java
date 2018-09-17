@@ -301,12 +301,14 @@ public class ShooterSim{
         if (s.inventory.getCount(TRIPLE_SHOT) >= 2)
             gfx.drawText(s.inventory.getCount(TRIPLE_SHOT) + "", new Vector2d(217, height - 70));
 
-        s.animationManager.drawAndAdvance(gfx);
+        s.animationManager.draw(gfx);
 
         gfx.setColor(Color.DARKRED);
         if (s.paused){
             gfx.fillRect(new Box(height/2 - 150, height/2 + 150, width/2 - 100, width/2 - 50));
             gfx.fillRect(new Box(height/2 - 150,height/2 + 150,width/2 + 50, width/2 + 100));
+        } else {
+            s.animationManager.advance();
         }
     }
 
