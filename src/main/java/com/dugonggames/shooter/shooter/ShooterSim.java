@@ -27,11 +27,12 @@ public class ShooterSim{
         return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new ArrayList<RookBomb>(), 0, 0 , 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
-    public ShooterState stepForward(ShooterState s, double dt, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
+    public ShooterState stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
+        final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t);
         boolean paused = s.paused;
         Vector2d nextLoc = s.location;
         double nextTime = s.time + dt;
-        int nextScore = s.score + 1;
+        double nextScore = (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.score + 0.5 : s.score + 1);
         BulletSet nextBulletSet = new BulletSet();
         final BulletSet nextBulletSetC = nextBulletSet;
         s.bullets.applyAll(b->nextBulletSetC.add(b));
@@ -194,9 +195,10 @@ public class ShooterSim{
         if (s.wasd.sPressed) nextMoveTo = new Vector2d(nextMoveTo.x, nextMoveTo.y + s.speed);
         if (s.wasd.dPressed) nextMoveTo = new Vector2d(nextMoveTo.x + s.speed, nextMoveTo.y);
         nextMoveTo = nextMoveTo.normalize();
+        if (s.buffsManager.isActiveBuff(TIME_BUFF)) nextMoveTo = nextMoveTo.scale(0.5);
         nextLoc = nextLoc.add(nextMoveTo.scale(s.speed));
 
-        int nextShipTimer = s.shipTimer + 1;
+        double nextShipTimer = (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.shipTimer + 0.5 : s.shipTimer + 1);
         if (nextScore <= 2500) nextShipTimer %= 500;
         else if (nextScore <= 5000) nextShipTimer %= 400;
         else if (nextScore <= 7500) nextShipTimer %= 300;
@@ -224,7 +226,7 @@ public class ShooterSim{
         s.buffsManager.tickTimer();
 
         if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, nextRookBombs, (s.bulletTimer + 1) % 10, nextShipTimer, (s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, nextRookBombs, (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.bulletTimer + 0.5 : s.bulletTimer + 1) % 10, nextShipTimer, (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.pwTimer + 0.5 : s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
         else {
             s.paused = true;
             return s;
@@ -263,8 +265,8 @@ public class ShooterSim{
         }
 
         gfx.setColor(Color.WHITE);
-        gfx.drawText(s.score + "", new Vector2d(20, 20));
-        gfx.drawText("Max: " + s.maxScore, new Vector2d(100, 20));
+        gfx.drawText((int) Math.floor(s.score) + "", new Vector2d(20, 20));
+        gfx.drawText("Max: " + (int) Math.floor(s.maxScore), new Vector2d(100, 20));
 
         for (Ship ship : s.ships){
             double angle = s.location.subtract(ship.getLocation().location).getAngle();

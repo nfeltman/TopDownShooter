@@ -6,11 +6,11 @@ import java.util.List;
 
 public class BuffsManager {
 
-    public enum BuffType {SPEED_BUFF, SHIELD_BUFF, DAMAGE_BUFF, TRIPLESHOT_BUFF}
+    public enum BuffType {SPEED_BUFF, SHIELD_BUFF, DAMAGE_BUFF, TRIPLESHOT_BUFF, TIME_BUFF}
     private int[] ticksLeft;
 
     public BuffsManager(){
-        ticksLeft = new int[4];
+        ticksLeft = new int[5];
     }
 
     public void tickTimer() {
