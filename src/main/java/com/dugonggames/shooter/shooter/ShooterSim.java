@@ -42,9 +42,11 @@ public class ShooterSim{
         ArrayList<HomingMissile> nextHomingMissiles = HomingMissile.advanceHomingMissiles(nextLoc, s.homingMissiles, dt);
         for (Ship ship : s.ships){
             MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(s.enemyShipArea);
-            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth(), (ship.getMissileTimer() + dt) % 4));
-            if (ship.getMissileTimer() == 399)
+            if (ship.getMissileTimer() <= 0) {
                 nextHomingMissiles.add(new HomingMissile(nextLoc, nextEnemyLoc.location, 3));
+                ship = new Ship(ship.getLocation(), ship.getHealth(), 6);
+            }
+            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth(), ship.getMissileTimer() - dt));
 
             if (s.bulletTimer < 0) {
                 nextBulletSet.add(BulletSpawner.makeBullet(nextLoc, nextEnemyLoc.location));
@@ -64,7 +66,7 @@ public class ShooterSim{
             while (Math.abs(nextShipVelocity.x) < 100 && Math.abs(nextShipVelocity.x) < 66){
                 nextShipVelocity = new Vector2d(((Math.random()-0.5)*200), ((Math.random()-0.5)*200));
             }
-            nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20, 0));
+            nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20, 6));
             if (nextScore <= 25) s.shipTimer = 7.5;
             else if (nextScore <= 5000) s.shipTimer = 6;
             else if (nextScore <= 7500) s.shipTimer = 5.5;
