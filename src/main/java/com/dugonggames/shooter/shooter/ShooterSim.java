@@ -32,7 +32,7 @@ public class ShooterSim{
         boolean paused = s.paused;
         Vector2d nextLoc = s.location;
         double nextTime = s.time + dt;
-        double nextScore = (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.score + 0.5 : s.score + 1);
+        double nextScore = (s.score + (dt * 100));
         BulletSet nextBulletSet = new BulletSet();
         final BulletSet nextBulletSetC = nextBulletSet;
         s.bullets.applyAll(b->nextBulletSetC.add(b));
@@ -42,17 +42,20 @@ public class ShooterSim{
         ArrayList<HomingMissile> nextHomingMissiles = HomingMissile.advanceHomingMissiles(nextLoc, s.homingMissiles, dt);
         for (Ship ship : s.ships){
             MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(s.enemyShipArea);
-            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth(), (ship.getMissileTimer() + 1) % 400));
+            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth(), (ship.getMissileTimer() + dt) % 4));
             if (ship.getMissileTimer() == 399)
                 nextHomingMissiles.add(new HomingMissile(nextLoc, nextEnemyLoc.location, 3));
 
-            if (s.bulletTimer == 0)
+            if (s.bulletTimer < 0) {
                 nextBulletSet.add(BulletSpawner.makeBullet(nextLoc, nextEnemyLoc.location));
-
+                s.bulletTimer = 0.1;
+            }
+            s.bulletTimer -= dt;
                 //nextBulletSet = CircleAttack(nextBulletSet, nextLoc, nextEnemyLoc.location, 8);
                 // This method doesnt work- no pauses in between bullets
         }
-        if (s.shipTimer == 0){
+
+        if (s.shipTimer < 0){
             Vector2d nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
             while (((nextShipLocation.x > (width/2)+200) || (nextShipLocation.x < (width/2) - 100)) && ((nextShipLocation.y > (height/2)+200) || (nextShipLocation.y < (height/2) - 100))){
                 nextShipLocation = new Vector2d(Math.random()*width, Math.random()*height);
@@ -62,7 +65,13 @@ public class ShooterSim{
                 nextShipVelocity = new Vector2d(((Math.random()-0.5)*200), ((Math.random()-0.5)*200));
             }
             nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20, 0));
+            if (nextScore <= 25) s.shipTimer = 7.5;
+            else if (nextScore <= 5000) s.shipTimer = 6;
+            else if (nextScore <= 7500) s.shipTimer = 5.5;
+            else if (nextScore <= 10000) s.shipTimer = 3.25;
+            else s.shipTimer = 3;
         }
+        s.shipTimer -= dt;
 
         ArrayList<MovingPoint> yourNextBullets = new ArrayList<>();
         ArrayList<RookBomb> nextRookBombs = new ArrayList<>();
@@ -114,6 +123,8 @@ public class ShooterSim{
 
                 if (nextRookBombs.size() == 0)
                     nextRookBombs.add(new RookBomb(s.location, 2));
+            } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)){
+                s.buffsManager.activateBuff(TIME_BUFF, 500);
             }
         }
 
@@ -198,13 +209,6 @@ public class ShooterSim{
         if (s.buffsManager.isActiveBuff(TIME_BUFF)) nextMoveTo = nextMoveTo.scale(0.5);
         nextLoc = nextLoc.add(nextMoveTo.scale(s.speed));
 
-        double nextShipTimer = (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.shipTimer + 0.5 : s.shipTimer + 1);
-        if (nextScore <= 2500) nextShipTimer %= 500;
-        else if (nextScore <= 5000) nextShipTimer %= 400;
-        else if (nextScore <= 7500) nextShipTimer %= 300;
-        else if (nextScore <= 10000) nextShipTimer %= 250;
-        else nextShipTimer %= 200;
-
         nextBulletSet = nextBulletSet.filter(b->b.location.inBox(s.playArea));
         nextBulletSet = nextBulletSet.map(b->b.step(dt));
         if (nextBulletSet.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
@@ -225,9 +229,10 @@ public class ShooterSim{
 
         s.buffsManager.tickTimer();
 
-        if (!paused)
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, nextRookBombs, (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.bulletTimer + 0.5 : s.bulletTimer + 1) % 10, nextShipTimer, (s.buffsManager.isActiveBuff(TIME_BUFF) ? s.pwTimer + 0.5 : s.pwTimer + 1) % 1000, s.inventory, s.buffsManager, s.dropsManager,s.animationManager, false);
-        else {
+        if (!paused) {
+            s.animationManager.advance(dt);
+            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, nextRookBombs, s.bulletTimer, s.shipTimer, ((s.pwTimer + dt)) % 10, s.inventory, s.buffsManager, s.dropsManager, s.animationManager, false);
+        } else {
             s.paused = true;
             return s;
         }
@@ -309,8 +314,6 @@ public class ShooterSim{
         if (s.paused){
             gfx.fillRect(new Box(height/2 - 150, height/2 + 150, width/2 - 100, width/2 - 50));
             gfx.fillRect(new Box(height/2 - 150,height/2 + 150,width/2 + 50, width/2 + 100));
-        } else {
-            s.animationManager.advance();
         }
     }
 

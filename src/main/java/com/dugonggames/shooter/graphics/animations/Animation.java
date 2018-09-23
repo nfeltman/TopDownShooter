@@ -5,6 +5,6 @@ import com.dugonggames.shooter.util.Vector2d;
 
 public interface Animation {
 
-    int getNumFrames();
-    void drawFrame(GfxWrapper gfx, Vector2d loc, int frame);
+    double getDuration();
+    void drawFrame(GfxWrapper gfx, Vector2d loc, double t);
 }

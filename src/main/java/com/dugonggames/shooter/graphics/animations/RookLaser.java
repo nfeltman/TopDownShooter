@@ -10,14 +10,15 @@ import java.util.Random;
 
 public class RookLaser implements Animation{
     long seed;
+    private static final double DURATION = 0.8;
     public RookLaser(){
         seed = (new Random()).nextLong();
     }
-    public int getNumFrames(){
-        return 40;
+    public double getDuration(){
+        return DURATION;
     }
-    public void drawFrame(GfxWrapper gfx, Vector2d loc, int frame) {
-        gfx.setColor(new Color(0.7, 0, 0, ((double) (getNumFrames() - frame)) / getNumFrames()));
+    public void drawFrame(GfxWrapper gfx, Vector2d loc, double t) {
+        gfx.setColor(new Color(0.7, 0, 0, 1 - (t / DURATION)));
         Random r = new Random();
         for (int i = 0; i < 200; i++) {
             Vector2d point = new Vector2d(r.nextDouble() * gfx.width, loc.y + (r.nextGaussian()));

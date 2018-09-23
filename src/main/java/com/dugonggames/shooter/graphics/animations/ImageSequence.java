@@ -14,18 +14,20 @@ import java.util.ArrayList;
 public class ImageSequence implements Animation {
 
     ArrayList<CenteredImage> images;
-    public ImageSequence(ArrayList<CenteredImage> images){
+    double duration;
+    public ImageSequence(ArrayList<CenteredImage> images, double duration){
         this.images = images;
+        this.duration = duration;
     }
 
     @Override
-    public int getNumFrames() {
-        return images.size() - 1;
+    public double getDuration() {
+        return duration;
     }
 
     @Override
-    public void drawFrame(GfxWrapper gfx, Vector2d loc, int frame) {
-        gfx.drawImage(images.get((frame)), loc);
+    public void drawFrame(GfxWrapper gfx, Vector2d loc, double t) {
+        gfx.drawImage(images.get((int) ((t / duration) * images.size())), loc);
     }
 
     public static ArrayList<CenteredImage> createSequence(Image image, int gridWidth, int gridHeight, int skip){

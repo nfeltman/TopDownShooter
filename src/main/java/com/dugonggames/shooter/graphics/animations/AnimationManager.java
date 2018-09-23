@@ -9,17 +9,17 @@ public class AnimationManager {
 
     private static class AnimatedMoment{
         private Animation animation;
-        private int frame;
+        private double time;
         private Vector2d location;
 
         private AnimatedMoment(Animation animation, Vector2d location){
             this.animation = animation;
-            this.frame = 0;
+            this.time = 0.0;
             this.location = location;
         }
 
-        private void increment(){
-            frame++;
+        private void increment(double dt){
+            time += dt;
         }
     }
 
@@ -36,15 +36,16 @@ public class AnimationManager {
     // draws all animations, and advances by a frame
     public void draw(GfxWrapper gfx) {
         for (int i = 0; i < activeAnimations.size(); i++){
-            activeAnimations.get(i).animation.drawFrame(gfx, activeAnimations.get(i).location, activeAnimations.get(i).frame);
+            activeAnimations.get(i).animation.drawFrame(gfx, activeAnimations.get(i).location, activeAnimations.get(i).time);
         }
     }
 
-    public void advance(){
+    public void advance(double dt){
         for (int i = 0; i < activeAnimations.size(); i++){
-            activeAnimations.get(i).increment();
-            if (activeAnimations.get(i).frame > activeAnimations.get(i).animation.getNumFrames())
+            activeAnimations.get(i).increment(dt);
+            if (activeAnimations.get(i).time > activeAnimations.get(i).animation.getDuration()) {
                 activeAnimations.remove(i);
+            }
         }
     }
 }
