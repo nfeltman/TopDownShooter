@@ -52,7 +52,7 @@ public class Launcher extends Application {
                 long actualDT = currentNanoTime - lastNanoTime;
                 lastNanoTime = currentNanoTime;
 
-                state = sim.stepForward(state, actualDT/1000000000.0, keyPressed, mouseClicked, CANVAS_WIDTH, CANVAS_HEIGHT);
+                sim.stepForward(state, actualDT/1000000000.0, keyPressed, mouseClicked, CANVAS_WIDTH, CANVAS_HEIGHT);
                 keyPressed = new ArrayList<KeyEvent>();
                 mouseClicked = new ArrayList<MouseEvent>();
 

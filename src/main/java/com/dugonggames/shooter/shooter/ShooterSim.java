@@ -24,36 +24,30 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new ArrayList<RookBomb>(), 0, 0 , 1, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new ArrayList<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
-    public ShooterState stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
+    public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
         final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t);
-        boolean paused = s.paused;
-        Vector2d nextLoc = s.location;
-        double nextTime = s.time + dt;
-        double nextScore = (s.score + (dt * 100));
-        BulletSet nextBulletSet = new BulletSet();
-        final BulletSet nextBulletSetC = nextBulletSet;
-        s.bullets.applyAll(b->nextBulletSetC.add(b));
+        s.time += dt;
+        s.score = (s.score + (dt * 100));
 
 
-        ArrayList<Ship> nextShips = new ArrayList<>();
-        ArrayList<HomingMissile> nextHomingMissiles = HomingMissile.advanceHomingMissiles(nextLoc, s.homingMissiles, dt);
-        for (Ship ship : s.ships){
-            MovingPoint nextEnemyLoc = ship.getLocation().step(dt).bounceInsideBox(s.enemyShipArea);
-            if (ship.getMissileTimer() <= 0) {
-                nextHomingMissiles.add(new HomingMissile(nextLoc, nextEnemyLoc.location, 3));
-                ship = new Ship(ship.getLocation(), ship.getHealth(), 6);
+        s.homingMissiles = HomingMissile.advanceHomingMissiles(s.location, s.homingMissiles, dt);
+        for (int i = 0; i < s.ships.size(); i++){
+            MovingPoint nextEnemyLoc = s.ships.get(i).getLocation().step(dt).bounceInsideBox(s.enemyShipArea);
+            if (s.ships.get(i).getMissileTimer() <= 0) {
+                s.homingMissiles.add(new HomingMissile(s.location, nextEnemyLoc.location, 3));
+                s.ships.set(i, new Ship(s.ships.get(i).getLocation(), s.ships.get(i).getHealth(), 6));
             }
-            nextShips.add(new Ship(nextEnemyLoc, ship.getHealth(), ship.getMissileTimer() - dt));
+            s.ships.set(i, new Ship(nextEnemyLoc, s.ships.get(i).getHealth(), s.ships.get(i).getMissileTimer() - dt));
 
             if (s.bulletTimer < 0) {
-                nextBulletSet.add(BulletSpawner.makeBullet(nextLoc, nextEnemyLoc.location));
+                s.bullets.add(BulletSpawner.makeBullet(s.location, nextEnemyLoc.location));
                 s.bulletTimer = 0.1;
             }
             s.bulletTimer -= dt;
-                //nextBulletSet = CircleAttack(nextBulletSet, nextLoc, nextEnemyLoc.location, 8);
+                //nextBulletSet = CircleAttack(nextBulletSet, s.location, nextEnemyLoc.location, 8);
                 // This method doesnt work- no pauses in between bullets
         }
 
@@ -66,36 +60,36 @@ public class ShooterSim{
             while (Math.abs(nextShipVelocity.x) < 100 && Math.abs(nextShipVelocity.x) < 66){
                 nextShipVelocity = new Vector2d(((Math.random()-0.5)*200), ((Math.random()-0.5)*200));
             }
-            nextShips.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20, 6));
-            if (nextScore <= 25) s.shipTimer = 7.5;
-            else if (nextScore <= 5000) s.shipTimer = 6;
-            else if (nextScore <= 7500) s.shipTimer = 5.5;
-            else if (nextScore <= 10000) s.shipTimer = 3.25;
+            s.ships.add(new Ship(new MovingPoint(nextShipLocation, nextShipVelocity), 20, 6));
+            if (s.score <= 25) s.shipTimer = 7.5;
+            else if (s.score <= 5000) s.shipTimer = 6;
+            else if (s.score <= 7500) s.shipTimer = 5.5;
+            else if (s.score <= 10000) s.shipTimer = 3.25;
             else s.shipTimer = 3;
         }
         s.shipTimer -= dt;
 
-        ArrayList<MovingPoint> yourNextBullets = new ArrayList<>();
         ArrayList<RookBomb> nextRookBombs = new ArrayList<>();
-        for (RookBomb bomb : s.rookBombs){
-            if (bomb.time > 0)
-                nextRookBombs.add(new RookBomb(bomb.location, bomb.time - dt));
-            else {
-                for (int i = 0; i < nextShips.size(); i++){
-                    if (Math.abs(nextShips.get(i).getLocation().location.x - bomb.location.x) < 120 || Math.abs(nextShips.get(i).getLocation().location.y - bomb.location.y) < 120) {
-                        nextShips.set(i, new Ship(nextShips.get(i).getLocation(), nextShips.get(i).getHealth() - 5, nextShips.get(i).getMissileTimer()));
-                        if (nextShips.get(i).getHealth() <= 0)
-                            nextShips.remove(i);
+        for (int i = 0; i < s.rookBombs.size(); i++){
+            if (s.rookBombs.get(i).time < 0){
+                for (int j = 0; j < s.ships.size(); j++){
+                    if (Math.abs(s.ships.get(j).getLocation().location.x - s.rookBombs.get(i).location.x) < 120 || Math.abs(s.ships.get(j).getLocation().location.y - s.rookBombs.get(i).location.y) < 120) {
+                        s.ships.set(j, new Ship(s.ships.get(j).getLocation(), s.ships.get(j).getHealth() - 5, s.ships.get(j).getMissileTimer()));
+                        if (s.ships.get(j).getHealth() <= 0)
+                            s.ships.remove(j);
                     }
                 }
-                for (int i = 0; i < nextHomingMissiles.size(); i++){
-                    if (Math.abs(nextHomingMissiles.get(i).location.location.x - bomb.location.x) < 30 || Math.abs(nextHomingMissiles.get(i).location.location.y - bomb.location.y) < 10) {
-                        nextHomingMissiles.set(i, new HomingMissile(s.location, nextHomingMissiles.get(i).location.location, nextHomingMissiles.get(i).health - 1));
-                        if (nextHomingMissiles.get(i).health <= 0)
-                            nextHomingMissiles.remove(i);
+                for (int j = 0; j < s.homingMissiles.size(); j++){
+                    if (Math.abs(s.homingMissiles.get(j).location.location.x - s.rookBombs.get(i).location.x) < 30 || Math.abs(s.homingMissiles.get(j).location.location.y - s.rookBombs.get(i).location.y) < 10) {
+                        s.homingMissiles.set(j, new HomingMissile(s.location, s.homingMissiles.get(j).location.location, s.homingMissiles.get(j).health - 1));
+                        if (s.homingMissiles.get(j).health <= 0)
+                            s.homingMissiles.remove(j);
                     }
                 }
-                s.animationManager.addAnimation(new RookLaser(), bomb.location);
+                s.animationManager.addAnimation(new RookLaser(), s.rookBombs.get(i).location);
+                s.rookBombs.remove(i);
+            } else {
+                s.rookBombs.set(i, new RookBomb(s.rookBombs.get(i).location, s.rookBombs.get(i).time - dt));
             }
         }
 
@@ -107,24 +101,24 @@ public class ShooterSim{
                 Vector2d nextLocation = new Vector2d(s.location.x, s.location.y);
                 Vector2d nextVelocity = new Vector2d(x, y).subtract(nextLocation);
                 nextVelocity = nextVelocity.normalize().scale(1000);
-                yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
+                s.yourBullets.add(new MovingPoint(nextLocation, nextVelocity));
                 if (s.buffsManager.isActiveBuff(TRIPLESHOT_BUFF)){
                     double distance = Vector2d.distance(s.location, new Vector2d(x, y));
 
                     nextLocation = new Vector2d(s.location.x, s.location.y);
                     nextVelocity = nextVelocity.rotatePiOver8();
-                    yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
+                    s.yourBullets.add(new MovingPoint(nextLocation, nextVelocity));
 
                     nextLocation = new Vector2d(s.location.x, s.location.y);
                     nextVelocity = nextVelocity.rotateNegativePiOver8().rotateNegativePiOver8();
-                    yourNextBullets.add(new MovingPoint(nextLocation, nextVelocity));
+                    s.yourBullets.add(new MovingPoint(nextLocation, nextVelocity));
                 }
             } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.SECONDARY)){
                 double x = event.getX();
                 double y = event.getY();
 
-                if (nextRookBombs.size() == 0)
-                    nextRookBombs.add(new RookBomb(s.location, 2));
+                if (s.rookBombs.size() == 0)
+                    s.rookBombs.add(new RookBomb(s.location, 2));
             } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)){
                 s.buffsManager.activateBuff(TIME_BUFF, 500);
             }
@@ -132,41 +126,45 @@ public class ShooterSim{
 
         for (int i = 0; i < s.yourBullets.size(); i++){
             boolean collided = false;
-            for (int j = 0; j < nextShips.size(); j++){
-                if (Vector2d.distance(s.yourBullets.get(i).location, nextShips.get(j).getLocation().location) <= 120){
-                    nextShips.set(j,  new Ship(nextShips.get(j).getLocation(), nextShips.get(j).getHealth() - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1), nextShips.get(j).getMissileTimer()));
+            for (int j = 0; j < s.ships.size(); j++){
+                if (Vector2d.distance(s.yourBullets.get(i).location, s.ships.get(j).getLocation().location) <= 120){
+                    s.ships.set(j,  new Ship(s.ships.get(j).getLocation(), s.ships.get(j).getHealth() - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1), s.ships.get(j).getMissileTimer()));
                     s.animationManager.addAnimation(GameImages.explosionSequence, s.yourBullets.get(i).location);
-                    if (nextShips.get(j).getHealth() <= 0){
-                        nextShips.remove(j);
-                        nextScore += 500;
+                    if (s.ships.get(j).getHealth() <= 0){
+                        s.ships.remove(j);
+                        s.score += 500;
                     }
                     collided = true;
                 }
             }
-            for (int j = 0; j < nextHomingMissiles.size(); j++){
-                if (Vector2d.distance(s.yourBullets.get(i).location, nextHomingMissiles.get(j).location.location) <= 16){
-                    nextHomingMissiles.set(j,  new HomingMissile(s.location, nextHomingMissiles.get(j).location.location, nextHomingMissiles.get(j).health - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
+            for (int j = 0; j < s.homingMissiles.size(); j++){
+                if (Vector2d.distance(s.yourBullets.get(i).location, s.homingMissiles.get(j).location.location) <= 16){
+                    s.homingMissiles.set(j,  new HomingMissile(s.location, s.homingMissiles.get(j).location.location, s.homingMissiles.get(j).health - (s.buffsManager.isActiveBuff(DAMAGE_BUFF) ? 2 : 1)));
                     s.animationManager.addAnimation(GameImages.explosionSequence, s.yourBullets.get(i).location);
-                    if (nextHomingMissiles.get(j).health <= 0){
-                        nextHomingMissiles.remove(j);
-                        nextScore += 50;
+                    if (s.homingMissiles.get(j).health <= 0){
+                        s.homingMissiles.remove(j);
+                        s.score += 50;
                     }
                     collided = true;
                 }
             }
-            if (s.yourBullets.get(i).location.inBox(s.playArea) && !collided)
-                yourNextBullets.add(s.yourBullets.get(i).step(dt));
+            if (!s.yourBullets.get(i).location.inBox(s.playArea) || collided)
+                s.yourBullets.remove(i);
+            else {
+                s.yourBullets.set(i, s.yourBullets.get(i).step(dt));
+            }
         }
 
 
-        if (s.pwTimer == 0) {
+        if (s.pwTimer <= 0) {
             s.dropsManager.placeDrop(new DropsManager.Drop(DropsManager.getRandomDrop(), s.enemyShipArea.randomPoint()));
+            s.pwTimer = 15;
         }
+        s.pwTimer -= dt;
 
         ArrayList<DropsManager.Drop> pickedUpDrops = s.dropsManager.pickUpDrops(s.location);
 
-        double nextSpeed = s.speed;
-        if (s.buffsManager.buffTimeLeft(SPEED_BUFF) == 499) nextSpeed *= 2;
+        if (s.buffsManager.buffTimeLeft(SPEED_BUFF) == 499) s.speed *= 2;
 
         for (DropsManager.Drop drop : pickedUpDrops) {
             if (drop.dropType == SPEED_DROP)
@@ -179,11 +177,11 @@ public class ShooterSim{
                 s.inventory.increment(TRIPLE_SHOT);
         }
 
-        if (!s.buffsManager.isActiveBuff(SPEED_BUFF)) nextSpeed = 5;
+        if (!s.buffsManager.isActiveBuff(SPEED_BUFF)) s.speed = 5;
 
         for (KeyEvent k : keyPresses){
             s.wasd.updateWithEvent(k);
-            if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) paused = !paused;
+            if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) s.paused = !s.paused;
             if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SPEED_BOOST)){
                 s.inventory.decrement(SPEED_BOOST);
                 s.buffsManager.activateBuff(SPEED_BUFF, 500);
@@ -209,34 +207,32 @@ public class ShooterSim{
         if (s.wasd.dPressed) nextMoveTo = new Vector2d(nextMoveTo.x + s.speed, nextMoveTo.y);
         nextMoveTo = nextMoveTo.normalize();
         if (s.buffsManager.isActiveBuff(TIME_BUFF)) nextMoveTo = nextMoveTo.scale(0.5);
-        nextLoc = nextLoc.add(nextMoveTo.scale(s.speed));
+        s.location = s.location.add(nextMoveTo.scale(s.speed));
 
-        nextBulletSet = nextBulletSet.filter(b->b.location.inBox(s.playArea));
-        nextBulletSet = nextBulletSet.map(b->b.step(dt));
-        if (nextBulletSet.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
-            nextBulletSet = new BulletSet();
-            nextShips.clear();
-            nextHomingMissiles.clear();
-            nextScore = 0;
+        s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
+        s.bullets = s.bullets.map(b->b.step(dt));
+        if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
+            s.bullets = new BulletSet();
+            s.ships.clear();
+            s.homingMissiles.clear();
+            s.score = 0;
         }
-        for (HomingMissile missile : nextHomingMissiles){
+        for (HomingMissile missile : s.homingMissiles){
             if (Vector2d.distance(missile.location.location, s.location) <= 5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)){
-                nextBulletSet = new BulletSet();
-                nextShips.clear();
-                nextHomingMissiles.clear();
-                nextScore = 0;
+                s.bullets = new BulletSet();
+                s.ships.clear();
+                s.homingMissiles.clear();
+                s.score = 0;
                 break;
             }
         }
 
         s.buffsManager.tickTimer();
 
-        if (!paused) {
+        if (!s.paused) {
             s.animationManager.advance(dt);
-            return new ShooterState(s.playArea, s.enemyShipArea, nextTime, nextLoc, nextSpeed, s.wasd, nextBulletSet, nextScore, Math.max(nextScore, s.maxScore), yourNextBullets, nextShips, nextHomingMissiles, nextRookBombs, s.bulletTimer, s.shipTimer, ((s.pwTimer + dt)) % 10, s.inventory, s.buffsManager, s.dropsManager, s.animationManager, false);
         } else {
             s.paused = true;
-            return s;
         }
     }
 
