@@ -28,6 +28,7 @@ public class ShooterSim{
     }
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
+        if (s.paused) t = 0;
         final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t);
         s.time += dt;
         s.score = (s.score + (dt * 100));
@@ -69,7 +70,6 @@ public class ShooterSim{
         }
         s.shipTimer -= dt;
 
-        ArrayList<RookBomb> nextRookBombs = new ArrayList<>();
         for (int i = 0; i < s.rookBombs.size(); i++){
             if (s.rookBombs.get(i).time < 0){
                 for (int j = 0; j < s.ships.size(); j++){
@@ -94,33 +94,24 @@ public class ShooterSim{
         }
 
         for (MouseEvent event : mouseClicks){
-            if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.PRIMARY)){
-                double x = event.getX();
-                double y = event.getY();
+            if (!s.paused) {
+                if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.PRIMARY)) {
+                    double x = event.getX();
+                    double y = event.getY();
 
-                Vector2d nextLocation = new Vector2d(s.location.x, s.location.y);
-                Vector2d nextVelocity = new Vector2d(x, y).subtract(nextLocation);
-                nextVelocity = nextVelocity.normalize().scale(1000);
-                s.yourBullets.add(new MovingPoint(nextLocation, nextVelocity));
-                if (s.buffsManager.isActiveBuff(TRIPLESHOT_BUFF)){
-                    double distance = Vector2d.distance(s.location, new Vector2d(x, y));
+                    Vector2d nextVelocity = new Vector2d(x, y).subtract(s.location).normalize().scale(1000);
+                    s.yourBullets.add(new MovingPoint(s.location, nextVelocity));
+                    if (s.buffsManager.isActiveBuff(TRIPLESHOT_BUFF)) {
+                        s.yourBullets.add(new MovingPoint(s.location, nextVelocity.rotatePiOver8()));
 
-                    nextLocation = new Vector2d(s.location.x, s.location.y);
-                    nextVelocity = nextVelocity.rotatePiOver8();
-                    s.yourBullets.add(new MovingPoint(nextLocation, nextVelocity));
-
-                    nextLocation = new Vector2d(s.location.x, s.location.y);
-                    nextVelocity = nextVelocity.rotateNegativePiOver8().rotateNegativePiOver8();
-                    s.yourBullets.add(new MovingPoint(nextLocation, nextVelocity));
+                        s.yourBullets.add(new MovingPoint(s.location, nextVelocity.rotateNegativePiOver8()));
+                    }
+                } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.SECONDARY)) {
+                    if (s.rookBombs.size() == 0)
+                        s.rookBombs.add(new RookBomb(s.location, 2));
+                } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)) {
+                    s.buffsManager.activateBuff(TIME_BUFF, 500);
                 }
-            } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.SECONDARY)){
-                double x = event.getX();
-                double y = event.getY();
-
-                if (s.rookBombs.size() == 0)
-                    s.rookBombs.add(new RookBomb(s.location, 2));
-            } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)){
-                s.buffsManager.activateBuff(TIME_BUFF, 500);
             }
         }
 
@@ -180,23 +171,25 @@ public class ShooterSim{
         if (!s.buffsManager.isActiveBuff(SPEED_BUFF)) s.speed = 5;
 
         for (KeyEvent k : keyPresses){
-            s.wasd.updateWithEvent(k);
             if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) s.paused = !s.paused;
-            if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SPEED_BOOST)){
-                s.inventory.decrement(SPEED_BOOST);
-                s.buffsManager.activateBuff(SPEED_BUFF, 500);
-            }
-            if (KeyCode.DIGIT2 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SHIELD)){
-                s.inventory.decrement(SHIELD);
-                s.buffsManager.activateBuff(SHIELD_BUFF, 250);
-            }
-            if (KeyCode.DIGIT3 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(DAMAGE_BOOST)){
-                s.inventory.decrement(DAMAGE_BOOST);
-                s.buffsManager.activateBuff(DAMAGE_BUFF, 500);
-            }
-            if (KeyCode.DIGIT4 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(TRIPLE_SHOT)){
-                s.inventory.decrement(TRIPLE_SHOT);
-                s.buffsManager.activateBuff(TRIPLESHOT_BUFF, 500);
+            if (!s.paused) {
+                s.wasd.updateWithEvent(k);
+                if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SPEED_BOOST)) {
+                    s.inventory.decrement(SPEED_BOOST);
+                    s.buffsManager.activateBuff(SPEED_BUFF, 500);
+                }
+                if (KeyCode.DIGIT2 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SHIELD)) {
+                    s.inventory.decrement(SHIELD);
+                    s.buffsManager.activateBuff(SHIELD_BUFF, 250);
+                }
+                if (KeyCode.DIGIT3 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(DAMAGE_BOOST)) {
+                    s.inventory.decrement(DAMAGE_BOOST);
+                    s.buffsManager.activateBuff(DAMAGE_BUFF, 500);
+                }
+                if (KeyCode.DIGIT4 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(TRIPLE_SHOT)) {
+                    s.inventory.decrement(TRIPLE_SHOT);
+                    s.buffsManager.activateBuff(TRIPLESHOT_BUFF, 500);
+                }
             }
         }
 
