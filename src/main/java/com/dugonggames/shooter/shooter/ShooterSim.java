@@ -172,8 +172,8 @@ public class ShooterSim{
 
         for (KeyEvent k : keyPresses){
             if (KeyCode.ESCAPE == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED) s.paused = !s.paused;
+            s.wasd.updateWithEvent(k, s.paused);
             if (!s.paused) {
-                s.wasd.updateWithEvent(k);
                 if (KeyCode.DIGIT1 == k.getCode() && k.getEventType() == KeyEvent.KEY_RELEASED && s.inventory.hasAtLeastOne(SPEED_BOOST)) {
                     s.inventory.decrement(SPEED_BOOST);
                     s.buffsManager.activateBuff(SPEED_BUFF, 500);
