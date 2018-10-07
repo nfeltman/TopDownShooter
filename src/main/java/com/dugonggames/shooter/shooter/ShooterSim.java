@@ -32,6 +32,7 @@ public class ShooterSim{
         final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t);
         s.time += dt;
         s.score = (s.score + (dt * 100));
+        s.maxScore = Math.max(s.score, s.maxScore);
 
 
         s.homingMissiles = HomingMissile.advanceHomingMissiles(s.location, s.homingMissiles, dt);
