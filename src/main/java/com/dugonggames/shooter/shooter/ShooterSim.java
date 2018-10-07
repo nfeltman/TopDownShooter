@@ -12,6 +12,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import java.util.Optional;
 
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new ArrayList<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new EntitySet<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -71,28 +72,28 @@ public class ShooterSim{
         }
         s.shipTimer -= dt;
 
-        for (int i = 0; i < s.rookBombs.size(); i++){
-            if (s.rookBombs.get(i).time < 0){
+        s.rookBombs = s.rookBombs.filterMap(b -> {
+            if (b.time < 0){
                 for (int j = 0; j < s.ships.size(); j++){
-                    if (Math.abs(s.ships.get(j).getLocation().location.x - s.rookBombs.get(i).location.x) < 120 || Math.abs(s.ships.get(j).getLocation().location.y - s.rookBombs.get(i).location.y) < 120) {
+                    if (Math.abs(s.ships.get(j).getLocation().location.x - b.location.x) < 120 || Math.abs(s.ships.get(j).getLocation().location.y - b.location.y) < 120) {
                         s.ships.set(j, new Ship(s.ships.get(j).getLocation(), s.ships.get(j).getHealth() - 5, s.ships.get(j).getMissileTimer()));
                         if (s.ships.get(j).getHealth() <= 0)
                             s.ships.remove(j);
                     }
                 }
                 for (int j = 0; j < s.homingMissiles.size(); j++){
-                    if (Math.abs(s.homingMissiles.get(j).location.location.x - s.rookBombs.get(i).location.x) < 30 || Math.abs(s.homingMissiles.get(j).location.location.y - s.rookBombs.get(i).location.y) < 10) {
+                    if (Math.abs(s.homingMissiles.get(j).location.location.x - b.location.x) < 30 || Math.abs(s.homingMissiles.get(j).location.location.y - b.location.y) < 10) {
                         s.homingMissiles.set(j, new HomingMissile(s.location, s.homingMissiles.get(j).location.location, s.homingMissiles.get(j).health - 1));
                         if (s.homingMissiles.get(j).health <= 0)
                             s.homingMissiles.remove(j);
                     }
                 }
-                s.animationManager.addAnimation(new RookLaser(), s.rookBombs.get(i).location);
-                s.rookBombs.remove(i);
+                s.animationManager.addAnimation(new RookLaser(), b.location);
+                return Optional.empty();
             } else {
-                s.rookBombs.set(i, new RookBomb(s.rookBombs.get(i).location, s.rookBombs.get(i).time - dt));
+                return Optional.of(new RookBomb(b.location, b.time - dt));
             }
-        }
+        });
 
         for (MouseEvent event : mouseClicks){
             if (!s.paused) {
@@ -154,7 +155,7 @@ public class ShooterSim{
         }
         s.pwTimer -= dt;
 
-        ArrayList<DropsManager.Drop> pickedUpDrops = s.dropsManager.pickUpDrops(s.location);
+        EntitySet<DropsManager.Drop> pickedUpDrops = s.dropsManager.pickUpDrops(s.location);
 
         if (s.buffsManager.buffTimeLeft(SPEED_BUFF) == 499) s.speed *= 2;
 

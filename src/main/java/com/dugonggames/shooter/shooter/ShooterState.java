@@ -22,7 +22,7 @@ public class ShooterState {
     ArrayList<MovingPoint> yourBullets;
     ArrayList<Ship> ships;
     ArrayList<HomingMissile> homingMissiles;
-    ArrayList<RookBomb> rookBombs;
+    EntitySet<RookBomb> rookBombs;
     double bulletTimer;
     double shipTimer;
     double pwTimer;

@@ -1,17 +1,19 @@
 package com.dugonggames.shooter.shooter;
 
+import com.dugonggames.shooter.util.Pair;
 import com.dugonggames.shooter.util.Vector2d;
 import lombok.Getter;
 import lombok.Value;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import static com.dugonggames.shooter.shooter.DropsManager.DropType.*;
 
 @Getter
-public class DropsManager {
+public class DropsManager{
 
-    private ArrayList<Drop> currentDrops;
+    private EntitySet<Drop> currentDrops;
 
     public enum DropType {
         SPEED_DROP, SHIELD_DROP, DAMAGE_DROP, TRIPLESHOT_DROP}
@@ -23,21 +25,17 @@ public class DropsManager {
     }
 
     public DropsManager(){
-        currentDrops = new ArrayList<Drop>();
+        currentDrops = new EntitySet<Drop>();
     }
 
     public void placeDrop(Drop d) {
         currentDrops.add(d);
     }
 
-    public ArrayList<Drop> pickUpDrops(Vector2d playerLoc) {
-        ArrayList<Drop> pickedUp = new ArrayList<>();
-        for (int i = 0; i < currentDrops.size(); i++)
-            if (Vector2d.distance(currentDrops.get(i).position, playerLoc) < 20) {
-                pickedUp.add(currentDrops.remove(i));
-                i--;
-            }
-        return pickedUp;
+    public EntitySet<Drop> pickUpDrops(Vector2d playerLoc) {
+        Pair<EntitySet<Drop>, EntitySet<Drop>> split = currentDrops.split(b -> Vector2d.distance(b.position, playerLoc) < 20);
+        currentDrops = split.getB();
+        return split.getA();
     }
 
     public static DropsManager.DropType getRandomDrop() {

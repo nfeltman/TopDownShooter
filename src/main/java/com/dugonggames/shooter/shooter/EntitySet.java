@@ -3,13 +3,14 @@ package com.dugonggames.shooter.shooter;
 import com.dugonggames.shooter.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class EntitySet<T> {
+public class EntitySet<T> implements Iterable<T>{
     private ArrayList<T> elements;
 
     public EntitySet(){
@@ -20,12 +21,29 @@ public class EntitySet<T> {
         elements.add(t);
     }
 
-    public EntitySet filter(Predicate<T> predicate){
+    public int size(){
+        return elements.size();
+    }
+
+    public EntitySet<T> filter(Predicate<T> predicate){
         EntitySet<T> filteredSet = new EntitySet<T>();
         for (T bullet : elements){
             if(predicate.test(bullet)) filteredSet.elements.add(bullet);
         }
         return filteredSet;
+    }
+
+    public Pair<EntitySet<T>, EntitySet<T>> split(Predicate<T> predicate){
+        EntitySet<T> filteredSet = new EntitySet<T>();
+        EntitySet<T> splitSet = new EntitySet<T>();
+        for (T element : elements){
+            if (predicate.test(element)){
+                filteredSet.elements.add(element);
+            } else {
+                splitSet.elements.add(element);
+            }
+        }
+        return new Pair(filteredSet, splitSet);
     }
 
     public <U> EntitySet<U> map(Function<T, U> function){
@@ -36,7 +54,7 @@ public class EntitySet<T> {
         return mappedSet;
     }
 
-    public <U> EntitySet<U> filtermap(Function<T, Optional<U>> function){
+    public <U> EntitySet<U> filterMap(Function<T, Optional<U>> function){
         EntitySet<U> filtermappedSet = new EntitySet<U>();
         for (T bullet : elements){
             Optional<U> filteredBullet = function.apply(bullet);
@@ -58,6 +76,11 @@ public class EntitySet<T> {
 
     public void applyAll(Consumer<T> consumer){
         for (T bullet : elements) consumer.accept(bullet);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+       return elements.iterator();
     }
 
     /*
