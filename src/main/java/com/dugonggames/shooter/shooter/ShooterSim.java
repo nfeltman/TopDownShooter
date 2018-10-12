@@ -25,7 +25,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new BulletSet(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new EntitySet<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new ArrayList<MovingPoint>(), new ArrayList<Ship>(), new ArrayList<HomingMissile>(), new EntitySet<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -207,14 +207,14 @@ public class ShooterSim{
         s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
         s.bullets = s.bullets.map(b->b.step(dt));
         if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
-            s.bullets = new BulletSet();
+            s.bullets = new EntitySet<>();
             s.ships.clear();
             s.homingMissiles.clear();
             s.score = 0;
         }
         for (HomingMissile missile : s.homingMissiles){
             if (Vector2d.distance(missile.location.location, s.location) <= 5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)){
-                s.bullets = new BulletSet();
+                s.bullets = new EntitySet<>();
                 s.ships.clear();
                 s.homingMissiles.clear();
                 s.score = 0;
@@ -310,7 +310,7 @@ public class ShooterSim{
         }
     }
 
-    public BulletSet CircleAttack(BulletSet b, Vector2d target, Vector2d origin, int number) {
+    /*public BulletSet CircleAttack(BulletSet b, Vector2d target, Vector2d origin, int number) {
 
         for (int i = 0; i < number; i++){
             Vector2d relativetarget = target.subtract(origin).normalize().scale(300).rotate(i*2*6.283185/number);
@@ -320,6 +320,6 @@ public class ShooterSim{
         }
 
         return b;
-    }
+    }*/
 }
 

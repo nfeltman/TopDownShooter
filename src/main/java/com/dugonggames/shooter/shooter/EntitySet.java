@@ -17,6 +17,8 @@ public class EntitySet<T> implements Iterable<T>{
         elements = new ArrayList<T>();
     }
 
+    private EntitySet(ArrayList<T> elements){ this.elements = elements; }
+
     public void add(T t){
         elements.add(t);
     }
@@ -63,8 +65,26 @@ public class EntitySet<T> implements Iterable<T>{
         return filtermappedSet;
     }
 
-    public <U> Pair<EntitySet<T>, EntitySet<U>> mapCross(BiFunction<T, U, Pair<Optional<T>, Optional<U>>> function){
-        throw new RuntimeException("Not implemented yet!");
+    public <U> Pair<EntitySet<T>, EntitySet<U>> mapCross(BiFunction<T, U, Pair<Optional<T>, Optional<U>>> function, EntitySet<U> other){
+        ArrayList<T> newElements = (ArrayList<T>) elements.clone();
+        ArrayList<U> otherElements = (ArrayList<U>) other.elements.clone();
+
+        for (int i = 0; i < elements.size(); i++){
+            for (int j = 0; j < other.elements.size(); i++){
+                Pair<Optional<T>, Optional<U>> pair = function.apply(elements.get(i), other.elements.get(j));
+                if (pair.getA().isPresent()) newElements.set(i, pair.getA().get());
+                else{
+                    newElements.remove(i);
+                    i--;
+                }
+                if (pair.getB().isPresent()) otherElements.set(j, pair.getB().get());
+                else{
+                    otherElements.remove(j);
+                    j--;
+                }
+            }
+        }
+        return new Pair<EntitySet<T>, EntitySet<U>>(new EntitySet<>(newElements), new EntitySet<>(otherElements));
     }
 
     public boolean any(Predicate<T> predicate){

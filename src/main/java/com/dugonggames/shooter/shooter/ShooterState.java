@@ -16,7 +16,7 @@ public class ShooterState {
     Vector2d location;
     double speed;
     HeldButtonState wasd;
-    BulletSet bullets;
+    EntitySet<MovingPoint> bullets;
     double score;
     double maxScore;
     ArrayList<MovingPoint> yourBullets;
