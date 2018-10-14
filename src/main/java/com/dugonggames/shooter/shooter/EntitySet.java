@@ -84,7 +84,7 @@ public class EntitySet<T> implements Iterable<T>{
                 }
             }
         }
-        return new Pair<EntitySet<T>, EntitySet<U>>(new EntitySet<>(newElements), new EntitySet<>(otherElements));
+        return new Pair<>(new EntitySet<>(newElements), new EntitySet<>(otherElements));
     }
 
     public boolean any(Predicate<T> predicate){
