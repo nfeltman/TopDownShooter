@@ -65,12 +65,13 @@ public class EntitySet<T> implements Iterable<T>{
         return filtermappedSet;
     }
 
-    public <U> Pair<EntitySet<T>, EntitySet<U>> mapCross(BiFunction<T, U, Pair<Optional<T>, Optional<U>>> function, EntitySet<U> other){
+    public <U> Pair<EntitySet<T>, EntitySet<U>> mapCross(EntitySet<U> other, BiFunction<T, U, Pair<Optional<T>, Optional<U>>> function){
         ArrayList<T> newElements = (ArrayList<T>) elements.clone();
         ArrayList<U> otherElements = (ArrayList<U>) other.elements.clone();
 
-        for (int i = 0; i < elements.size(); i++){
-            for (int j = 0; j < other.elements.size(); i++){
+        outer:
+        for (int i = 0; i < newElements.size(); i++){
+            for (int j = 0; j < otherElements.size() && i < newElements.size(); j++){
                 Pair<Optional<T>, Optional<U>> pair = function.apply(elements.get(i), other.elements.get(j));
                 if (pair.getA().isPresent()) newElements.set(i, pair.getA().get());
                 else{

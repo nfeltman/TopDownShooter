@@ -14,11 +14,7 @@ public class HomingMissile {
         this.health = health;
     }
 
-    public static ArrayList<HomingMissile> advanceHomingMissiles(Vector2d target, ArrayList<HomingMissile> missiles, double dt){
-        ArrayList<HomingMissile> nextMissiles = new ArrayList<>();
-        for (HomingMissile missile : missiles){
-            nextMissiles.add(new HomingMissile(target, missile.location.step((3*dt)/4).location, missile.health));
-        }
-        return nextMissiles;
+    public static EntitySet<HomingMissile> advanceHomingMissiles(Vector2d target, EntitySet<HomingMissile> missiles, double dt){
+        return missiles.map(m -> new HomingMissile(target, m.location.step((3*dt)/4).location, m.health));
     }
 }

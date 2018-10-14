@@ -19,9 +19,9 @@ public class ShooterState {
     EntitySet<MovingPoint> bullets;
     double score;
     double maxScore;
-    ArrayList<MovingPoint> yourBullets;
-    ArrayList<Ship> ships;
-    ArrayList<HomingMissile> homingMissiles;
+    EntitySet<MovingPoint> yourBullets;
+    EntitySet<Ship> ships;
+    EntitySet<HomingMissile> homingMissiles;
     EntitySet<RookBomb> rookBombs;
     double bulletTimer;
     double shipTimer;
