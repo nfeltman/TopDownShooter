@@ -1,8 +1,11 @@
 package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.util.Pair;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -10,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@EqualsAndHashCode
 public class EntitySet<T> implements Iterable<T>{
     private ArrayList<T> elements;
 
@@ -18,6 +22,11 @@ public class EntitySet<T> implements Iterable<T>{
     }
 
     private EntitySet(ArrayList<T> elements){ this.elements = elements; }
+
+    public static <T> EntitySet<T> of(T... ts) {
+        final ArrayList<T> list = new ArrayList<T>(Arrays.asList(ts));
+        return new EntitySet<>(list);
+    }
 
     public void add(T t){
         elements.add(t);
@@ -102,6 +111,10 @@ public class EntitySet<T> implements Iterable<T>{
     @Override
     public Iterator<T> iterator() {
        return elements.iterator();
+    }
+
+    public String toString() {
+        return elements.toString();
     }
 
     /*
