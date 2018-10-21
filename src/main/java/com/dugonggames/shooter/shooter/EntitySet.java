@@ -75,26 +75,23 @@ public class EntitySet<T> implements Iterable<T>{
     }
 
     public <U> Pair<EntitySet<T>, EntitySet<U>> mapCross(EntitySet<U> other, BiFunction<T, U, Pair<Optional<T>, Optional<U>>> function){
-        ArrayList<T> newElements = (ArrayList<T>) elements.clone();
         ArrayList<U> otherElements = (ArrayList<U>) other.elements.clone();
 
-        outer:
-        for (int i = 0; i < newElements.size(); i++){
-            for (int j = 0; j < otherElements.size() && i < newElements.size(); j++){
-                Pair<Optional<T>, Optional<U>> pair = function.apply(elements.get(i), other.elements.get(j));
-                if (pair.getA().isPresent()) newElements.set(i, pair.getA().get());
-                else{
-                    newElements.remove(i);
-                    i--;
-                }
+        EntitySet<T> newSet = filterMap(element -> {
+            T newElement = element;
+            for (int j = 0; j < otherElements.size(); j++){
+                Pair<Optional<T>, Optional<U>> pair = function.apply(newElement, otherElements.get(j));
                 if (pair.getB().isPresent()) otherElements.set(j, pair.getB().get());
-                else{
+                else {
                     otherElements.remove(j);
                     j--;
                 }
+                if (pair.getA().isPresent()) newElement = pair.getA().get();
+                else return Optional.empty();
             }
-        }
-        return new Pair<>(new EntitySet<>(newElements), new EntitySet<>(otherElements));
+            return Optional.of(newElement);
+        });
+        return new Pair<>(newSet, new EntitySet<>(otherElements));
     }
 
     public boolean any(Predicate<T> predicate){
