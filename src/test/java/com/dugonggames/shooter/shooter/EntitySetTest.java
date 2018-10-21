@@ -36,11 +36,11 @@ public class EntitySetTest {
     @Test
     public void test_mapCross_empty() {
         EntitySet<Integer> s1 = EntitySet.of(4,5,6);
-        EntitySet<Integer> s2 = EntitySet.of(7,8,9,10);
+        EntitySet<Integer> s2 = EntitySet.of(7,8,9,10,11);
 
         Pair<EntitySet<Integer>, EntitySet<Integer>> actual = s1.mapCross(s2, (a,b) -> new Pair<>(Optional.empty(), Optional.empty()));
         assertEquals(EntitySet.of(), actual.getA());
-        assertEquals(EntitySet.of(), actual.getB());
+        assertEquals(EntitySet.of(10,11), actual.getB());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class EntitySetTest {
         EntitySet<Integer> s1 = EntitySet.of(4,5,6);
         EntitySet<Integer> s2 = EntitySet.of(7,8,9,10);
 
-        Pair<EntitySet<Integer>, EntitySet<Integer>> actual = s1.mapCross(s2, (a,b) -> new Pair<>(Optional.of(a--), Optional.of(b--)));
+        Pair<EntitySet<Integer>, EntitySet<Integer>> actual = s1.mapCross(s2, (a,b) -> new Pair<>(Optional.of(a-1), Optional.of(b-1)));
         assertEquals(EntitySet.of(0,1,2), actual.getA());
         assertEquals(EntitySet.of(4,5,6,7), actual.getB());
     }

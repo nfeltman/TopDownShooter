@@ -26,7 +26,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 100, width - 100),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new EntitySet<MovingPoint>(), new EntitySet<Ship>(), new EntitySet<HomingMissile>(), new EntitySet<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(450, height - 450, 700, width - 700),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new EntitySet<MovingPoint>(), new EntitySet<Ship>(), new EntitySet<HomingMissile>(), new EntitySet<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {

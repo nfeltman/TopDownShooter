@@ -21,6 +21,7 @@ public class GameImages {
     public static CenteredImage damageBoostBig;
     public static CenteredImage tripleShot;
     public static CenteredImage tripleShotBig;
+    public static CenteredImage wall;
     public static ImageSequence explosionSequence;
 
     public static void loadImages(){
@@ -39,6 +40,7 @@ public class GameImages {
         damageBoostBig = new CenteredImage(new Image("file:resources/damageBoost.png", 60, 60, true, true));
         tripleShot = new CenteredImage(new Image("file:resources/tripleShot.png", 20, 20, true, true));
         tripleShotBig = new CenteredImage(new Image("file:resources/tripleShot.png", 50, 50, true, true));
+        wall = new CenteredImage(new Image("file:resources/wall.png", 100, 20, true, true));
         explosionSequence = new ImageSequence(ImageSequence.createSequence(new Image("file:resources/explosion1.png", 4096, 4096, true, true), 8, 8, 0), 0.8);
 
     }
