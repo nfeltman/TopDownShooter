@@ -4,7 +4,6 @@ import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.image.Image;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Value;
 
 @AllArgsConstructor
 @Getter
