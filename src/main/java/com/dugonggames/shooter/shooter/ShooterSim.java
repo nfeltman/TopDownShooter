@@ -4,10 +4,7 @@ import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.graphics.animations.AnimationManager;
 import com.dugonggames.shooter.graphics.animations.RookLaser;
-import com.dugonggames.shooter.util.Box;
-import com.dugonggames.shooter.util.MovingPoint;
-import com.dugonggames.shooter.util.Pair;
-import com.dugonggames.shooter.util.Vector2d;
+import com.dugonggames.shooter.util.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -26,7 +23,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(450, height - 450, 700, width - 700),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new EntitySet<MovingPoint>(), new EntitySet<Ship>(), new EntitySet<HomingMissile>(), new EntitySet<RookBomb>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 50, width - 50),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new EntitySet<MovingPoint>(), new EntitySet<Ship>(), new EntitySet<HomingMissile>(), new EntitySet<RookBomb>(), new EntitySet<Wall>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -114,7 +111,9 @@ public class ShooterSim{
                     if (s.rookBombs.size() == 0)
                         s.rookBombs.add(new RookBomb(s.location, 2));
                 } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)) {
-                    s.buffsManager.activateBuff(TIME_BUFF, 500);
+                    double x = event.getX();
+                    double y = event.getY();
+                    s.walls.add(new Wall(s.location, Rotation.fromVectors(s.location, new Vector2d(x, y))));
                 }
             }
         }
@@ -208,6 +207,7 @@ public class ShooterSim{
         s.location = s.location.add(nextMoveTo.scale(s.speed));
 
         s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
+        s.bullets = s.bullets.filter(b->{return !(s.walls.any(w -> b.location.inBox(new Box(w.location.y - 10, w.location.y + 10, w.location.x - 50, w.location.x + 50))));});
         s.bullets = s.bullets.map(b->b.step(dt));
         if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
             s.bullets = new EntitySet<>();
@@ -263,6 +263,10 @@ public class ShooterSim{
 
         for (RookBomb bomb : s.rookBombs){
             gfx.drawImage(GameImages.rookBomb, bomb.location);
+        }
+
+        for (Wall wall : s.walls){
+            gfx.drawRotatedImage(GameImages.wall, wall.angle, wall.location);
         }
 
         gfx.setColor(Color.WHITE);

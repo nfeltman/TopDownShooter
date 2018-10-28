@@ -23,6 +23,7 @@ public class ShooterState {
     EntitySet<Ship> ships;
     EntitySet<HomingMissile> homingMissiles;
     EntitySet<RookBomb> rookBombs;
+    EntitySet<Wall> walls;
     double bulletTimer;
     double shipTimer;
     double pwTimer;

@@ -1,5 +1,8 @@
 package com.dugonggames.shooter.util;
 
+import lombok.Getter;
+
+@Getter
 public class Rotation {
 
     // always length 1
@@ -17,18 +20,19 @@ public class Rotation {
     }
 
     public static Rotation fromVectors(final Vector2d from, final Vector2d to) {
-        throw new RuntimeException("Not implemented");
+        Vector2d a = from.normalize();
+        Vector2d b = to.normalize();
+        return new Rotation(a.x, a.y).compose(new Rotation(b.x, b.y).negate());
     }
 
     // gets the rotation corresponding to (abc)
     public static Rotation fromPoints(final Vector2d a, final Vector2d b, final Vector2d c) {
-        throw new RuntimeException("Not implemented");
+        return fromVectors(a.subtract(b), c.subtract(b));
     }
 
     public Rotation negate() {
         return new Rotation(y, -x);
     }
-
 
     // adds the two rotations together
     public Rotation compose(final Rotation r) {

@@ -6,6 +6,6 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class Wall {
-    Vector2d position;
+    Vector2d location;
     Rotation angle;
 }
