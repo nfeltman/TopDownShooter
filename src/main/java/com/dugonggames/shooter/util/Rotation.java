@@ -3,28 +3,41 @@ package com.dugonggames.shooter.util;
 public class Rotation {
 
     // always length 1
-    private Vector2d p;
-
-    public Rotation(double angleInDegrees) {
-        p = new Vector2d(Math.cos(angleInDegrees), Math.sin(angleInDegrees));
-    }
+    private double x;
+    private double y;
 
     private Rotation(double x, double y){
-        p = new Vector2d(x, y);
+        this.x = x;
+        this.y = y;
     }
-    // adds the two rotations together
 
-    public Rotation compose(final Rotation r) {
-        return new Rotation((p.x * r.p.x) - (p.y * r.p.y), (p.x * r.p.y) + (p.y * r.p.x));
+    public static Rotation fromCounterClockwiseAngle(double angleInDegrees) {
+        double angleInRadians = angleInDegrees / 180 * Math.PI;
+        return new Rotation(Math.cos(angleInRadians), Math.sin(angleInRadians));
     }
-    /*
-    a + bi * c + di
-    ac + adi + bci - bd
-     */
+
+    public static Rotation fromVectors(final Vector2d from, final Vector2d to) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    // gets the rotation corresponding to (abc)
+    public static Rotation fromPoints(final Vector2d a, final Vector2d b, final Vector2d c) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public Rotation negate() {
+        return new Rotation(y, -x);
+    }
+
+
+    // adds the two rotations together
+    public Rotation compose(final Rotation r) {
+        return new Rotation((x * r.x) - (y * r.y), (x * r.y) + (y * r.x));
+    }
 
     // rotates the point around the origin
     public Vector2d rotate(final Vector2d p) {
-        return new Vector2d((p.x * this.p.x) - (p.y * this.p.y), (p.x * this.p.y) + (p.y * this.p.x));
+        return new Vector2d((p.x * x) - (p.y * y), (p.x * y) + (p.y * x));
     }
 
     // rotates the point around another point
