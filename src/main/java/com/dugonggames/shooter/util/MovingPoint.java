@@ -13,6 +13,14 @@ public class MovingPoint {
         return new MovingPoint(location.subtract(p.location), velocity.subtract(p.velocity));
     }
 
+    public MovingPoint addLoc(Vector2d p){
+        return new MovingPoint(location.add(p), velocity);
+    }
+
+    public MovingPoint subtractLoc(Vector2d p){
+        return new MovingPoint(location.subtract(p), velocity);
+    }
+
     // step a timestep
     // assumes no external forces on the
     public MovingPoint step(double deltaT) {

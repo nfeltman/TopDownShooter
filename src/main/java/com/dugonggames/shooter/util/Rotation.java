@@ -48,6 +48,8 @@ public class Rotation {
         return new Vector2d((p.x * x) - (p.y * y), (p.x * y) + (p.y * x));
     }
 
+    public MovingPoint rotate(final MovingPoint p){ return new MovingPoint(rotate(p.location), rotate(p.velocity));}
+
     // rotates the point around another point
     public Vector2d rotate(final Vector2d p, final Vector2d center) {
         return rotate(p.subtract(center)).add(center);

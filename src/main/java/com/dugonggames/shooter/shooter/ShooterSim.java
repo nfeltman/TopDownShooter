@@ -28,7 +28,7 @@ public class ShooterSim{
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
         if (s.paused) t = 0;
-        final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t);
+        final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t) / 100;
         s.time += dt;
         s.score = (s.score + (dt * 100));
         s.maxScore = Math.max(s.score, s.maxScore);
@@ -204,15 +204,16 @@ public class ShooterSim{
         s.location = s.location.add(nextMoveTo.scale(s.speed));
 
         s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
-        //s.bullets = s.bullets.filter(b->{return !(s.walls.any(w -> b.location.inBox(new Box(w.location.y - 10, w.location.y + 10, w.location.x - 50, w.location.x + 50))));});
-        Pair<EntitySet<MovingPoint>, EntitySet<Wall>> bulletWallPair = s.bullets.mapCross(s.walls, (b, w) -> {
-            if (b.location.inBox(new Box(w.location.y - 10, w.location.y + 10, w.location.x - 50, w.location.x + 50))){
-                return new Pair<>(Optional.of(new MovingPoint(b.location, new Vector2d(b.velocity.x, -b.velocity.y))), Optional.of(w));
+        Pair<EntitySet<MovingPoint>, EntitySet<Wall>> bulletWallPair = s.bullets.mapCross(s.walls, (bullet, w) -> {
+            MovingPoint b = w.angle.negate().rotate(bullet.subtractLoc(w.location));
+            if (b.location.inBox(new Box(-10, 10, -50, 50))){
+                if (b.location.y > 0 != b.velocity.y > 0) b = new MovingPoint(b.location, new Vector2d(b.velocity.x, -b.velocity.y));
             }
-            return new Pair<>(Optional.of(b), Optional.of(w));
+            return new Pair<>(Optional.of(w.angle.rotate(b).addLoc(w.location)), Optional.of(w));
         });
         s.bullets = bulletWallPair.getA();
         s.bullets = s.bullets.map(b->b.step(dt));
+
         if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
             s.bullets = new EntitySet<>();
             s.ships = new EntitySet<>();
