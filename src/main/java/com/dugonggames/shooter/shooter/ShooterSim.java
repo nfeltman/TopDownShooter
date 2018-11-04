@@ -204,7 +204,14 @@ public class ShooterSim{
         s.location = s.location.add(nextMoveTo.scale(s.speed));
 
         s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
-        s.bullets = s.bullets.filter(b->{return !(s.walls.any(w -> b.location.inBox(new Box(w.location.y - 10, w.location.y + 10, w.location.x - 50, w.location.x + 50))));});
+        //s.bullets = s.bullets.filter(b->{return !(s.walls.any(w -> b.location.inBox(new Box(w.location.y - 10, w.location.y + 10, w.location.x - 50, w.location.x + 50))));});
+        Pair<EntitySet<MovingPoint>, EntitySet<Wall>> bulletWallPair = s.bullets.mapCross(s.walls, (b, w) -> {
+            if (b.location.inBox(new Box(w.location.y - 10, w.location.y + 10, w.location.x - 50, w.location.x + 50))){
+                return new Pair<>(Optional.of(new MovingPoint(b.location, new Vector2d(b.velocity.x, -b.velocity.y))), Optional.of(w));
+            }
+            return new Pair<>(Optional.of(b), Optional.of(w));
+        });
+        s.bullets = bulletWallPair.getA();
         s.bullets = s.bullets.map(b->b.step(dt));
         if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
             s.bullets = new EntitySet<>();
