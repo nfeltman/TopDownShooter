@@ -95,12 +95,11 @@ public class ShooterSim{
         });
 
         for (MouseEvent event : mouseClicks){
+            final Vector2d v = new Vector2d(event.getX(), event.getY());
             if (!s.paused) {
                 if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.PRIMARY)) {
-                    double x = event.getX();
-                    double y = event.getY();
 
-                    Vector2d nextVelocity = new Vector2d(x, y).subtract(s.location).normalize().scale(1000);
+                    Vector2d nextVelocity = v.subtract(s.location).normalize().scale(1000);
                     s.yourBullets.add(new MovingPoint(s.location, nextVelocity));
                     if (s.buffsManager.isActiveBuff(TRIPLESHOT_BUFF)) {
                         s.yourBullets.add(new MovingPoint(s.location, nextVelocity.rotatePiOver8()));
@@ -111,9 +110,7 @@ public class ShooterSim{
                     if (s.rookBombs.size() == 0)
                         s.rookBombs.add(new RookBomb(s.location, 2));
                 } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)) {
-                    double x = event.getX();
-                    double y = event.getY();
-                    s.walls.add(new Wall(s.location, Rotation.fromVectors(s.location, new Vector2d(x, y))));
+                    s.walls.add(new Wall(s.location, Rotation.fromVectors(new Vector2d(0, 1), v.subtract(s.location))));
                 }
             }
         }

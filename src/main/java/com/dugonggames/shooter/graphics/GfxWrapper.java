@@ -53,11 +53,11 @@ public class GfxWrapper {
     }
 
     public void drawRotatedImage(CenteredImage image, Rotation rotation, Vector2d location) {
-        double px = image.getCenter().x;
-        double py = image.getCenter().y;
         gc.save(); // saves the current state on stack, including the current transform
-        gc.setTransform(rotation.getX(), rotation.getY(), -rotation.getY(), rotation.getX(), px - (px * rotation.getX()) + (py * rotation.getY()), py - (px * rotation.getY()) - (py * rotation.getX()));
-        gc.drawImage(image.getImage(), location.x - image.getCenter().x, location.y - image.getCenter().y);
+        gc.setTransform(rotation.getX(), -rotation.getY(), rotation.getY(), rotation.getX(),
+                location.x,
+                location.y);
+        gc.drawImage(image.getImage(),-image.getCenter().x, -image.getCenter().y);
         gc.restore(); // back to original state (before rotation)
     }
     public void drawText(String text, Vector2d topLeft){

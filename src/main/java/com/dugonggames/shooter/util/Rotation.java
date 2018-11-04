@@ -31,7 +31,11 @@ public class Rotation {
     }
 
     public Rotation negate() {
-        return new Rotation(y, -x);
+        return new Rotation(x, -y);
+    }
+
+    public Rotation clockwise90() {
+        return new Rotation(-y, x);
     }
 
     // adds the two rotations together
