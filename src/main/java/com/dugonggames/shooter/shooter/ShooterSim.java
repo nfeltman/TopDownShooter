@@ -28,7 +28,7 @@ public class ShooterSim{
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
         if (s.paused) t = 0;
-        final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t) / 100;
+        final double dt = (s.buffsManager.isActiveBuff(TIME_BUFF) ? t/2 : t);
         s.time += dt;
         s.score = (s.score + (dt * 100));
         s.maxScore = Math.max(s.score, s.maxScore);
@@ -205,11 +205,11 @@ public class ShooterSim{
 
         s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
         Pair<EntitySet<MovingPoint>, EntitySet<Wall>> bulletWallPair = s.bullets.mapCross(s.walls, (bullet, w) -> {
-            MovingPoint b = w.angle.negate().rotate(bullet.subtractLoc(w.location));
+            MovingPoint b = w.angle.rotate(bullet.subtractLoc(w.location));
             if (b.location.inBox(new Box(-10, 10, -50, 50))){
                 if (b.location.y > 0 != b.velocity.y > 0) b = new MovingPoint(b.location, new Vector2d(b.velocity.x, -b.velocity.y));
             }
-            return new Pair<>(Optional.of(w.angle.rotate(b).addLoc(w.location)), Optional.of(w));
+            return new Pair<>(Optional.of(w.angle.negate().rotate(b).addLoc(w.location)), Optional.of(w));
         });
         s.bullets = bulletWallPair.getA();
         s.bullets = s.bullets.map(b->b.step(dt));
