@@ -14,6 +14,7 @@ public class ShooterState {
     Box enemyShipArea;
     double time;
     Vector2d location;
+    int health;
     double speed;
     HeldButtonState wasd;
     EntitySet<MovingPoint> bullets;

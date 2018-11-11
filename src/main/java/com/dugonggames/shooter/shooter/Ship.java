@@ -2,6 +2,7 @@ package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.graphics.GfxWrapper;
+import com.dugonggames.shooter.graphics.animations.GfxUtils;
 import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Rotation;
@@ -28,9 +29,6 @@ public class Ship {
         Rotation angle = Rotation.fromVectors(new Vector2d(0, 1), location.location.subtract(target));
         gfx.drawRotatedImage(GameImages.enemyShip, angle, location.location);
 
-        gfx.setColor(Color.RED);
-        gfx.fillRect(new Box(y - 70,y - 60, x - 100,  x + 100));
-        gfx.setColor(Color.GREEN);
-        gfx.fillRect(new Box(y - 70, y - 60,x - 100,  (x - 100) + 200 * (health/20.0)));
+        GfxUtils.healthBar(gfx, health, 20.0, location.location, 10);
     }
 }

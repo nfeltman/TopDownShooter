@@ -3,6 +3,7 @@ package com.dugonggames.shooter.shooter;
 import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.graphics.animations.AnimationManager;
+import com.dugonggames.shooter.graphics.animations.GfxUtils;
 import com.dugonggames.shooter.graphics.animations.RookLaser;
 import com.dugonggames.shooter.util.*;
 import javafx.scene.input.KeyCode;
@@ -23,7 +24,7 @@ public class ShooterSim{
 
     public ShooterState init(int width, int height) {
         GameImages.loadImages();
-        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 50, width - 50),0, new Vector2d(width/2, height/2), 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new EntitySet<MovingPoint>(), new EntitySet<Ship>(), new EntitySet<HomingMissile>(), new EntitySet<RookBomb>(), new EntitySet<Wall>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
+        return new ShooterState(new Box(0, height, 0, width), new Box(50, height - 50, 50, width - 50),0, new Vector2d(width/2, height/2), 50, 5, new HeldButtonState(), new EntitySet<MovingPoint>(), 0, 0, new EntitySet<MovingPoint>(), new EntitySet<Ship>(), new EntitySet<HomingMissile>(), new EntitySet<RookBomb>(), new EntitySet<Wall>(), 0, 0 , 15, new Inventory(), new BuffsManager(),  new DropsManager(), new AnimationManager(), false);
     }
 
     public void stepForward(ShooterState s, double t, ArrayList<KeyEvent> keyPresses, ArrayList<MouseEvent> mouseClicks, int width, int height) {
@@ -218,20 +219,27 @@ public class ShooterSim{
         s.bullets = s.bullets.map(b->b.step(dt));
         s.walls = bulletWallPair.getB();
 
-        if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
+        if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) s.health--;
+        s.bullets = s.bullets.filterMap(b -> {
+            if (Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)){
+                s.health--;
+                return Optional.empty();
+            }
+            return Optional.of(b);
+        });
+        s.homingMissiles = s.homingMissiles.filterMap(missile -> {
+            if (Vector2d.distance(missile.location.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)){
+                s.health -= 3;
+                return Optional.empty();
+            }
+            return Optional.of(missile);
+        });
+        if (s.health <= 0){
             s.bullets = new EntitySet<>();
             s.ships = new EntitySet<>();
             s.homingMissiles = new EntitySet<>();
             s.score = 0;
-        }
-        for (HomingMissile missile : s.homingMissiles){
-            if (Vector2d.distance(missile.location.location, s.location) <= 5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF)){
-                s.bullets = new EntitySet<>();
-                s.ships = new EntitySet<>();
-                s.homingMissiles = new EntitySet<>();
-                s.score = 0;
-                break;
-            }
+            s.health = 50;
         }
 
         s.buffsManager.tickTimer();
@@ -258,6 +266,7 @@ public class ShooterSim{
         }
 
         gfx.drawImage(GameImages.friendlyShip, s.location);
+        GfxUtils.healthBar(gfx, s.health, 50.0, s.location, 4);
 
         s.bullets.applyAll(b->gfx.drawImage(GameImages.enemyBullet, b.location));
 
