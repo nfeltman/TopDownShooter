@@ -20,11 +20,8 @@ public class Ship {
     double missileTimer;
 
     public void draw(GfxWrapper gfx, Vector2d target){
-        double x = location.location.x;
-        double y = location.location.y;
-
         gfx.setColor(Color.LIGHTBLUE);
-        gfx.strokeArc(new Vector2d(x, y), 120, 5, 0, 360);
+        gfx.strokeArc(location.location, 120, 5, 0, 360);
 
         Rotation angle = Rotation.fromVectors(new Vector2d(0, 1), location.location.subtract(target));
         gfx.drawRotatedImage(GameImages.enemyShip, angle, location.location);
