@@ -1,6 +1,7 @@
 package com.dugonggames.shooter.graphics;
 
 import com.dugonggames.shooter.graphics.animations.ImageSequence;
+import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class GameImages {
 
     public static void loadImages(){
         background = new CenteredImage(new Image("file:resources/background.png"));
-        enemyShip = new CenteredImage(new Image("file:resources/enemy_spaceship.png"));
+        enemyShip = new CenteredImage(new Vector2d(100,120), new Image("file:resources/enemy_spaceship.png"));
         homingMissile = new CenteredImage(new Image("file:resources/homingMissile.png", 60, 60, true, true));
         rookBomb = new CenteredImage(new Image("file:resources/RookBomb.png", 30, 30, true, true));
         friendlyShip = new CenteredImage(new Image("file:resources/friendly_spaceship.png", 30, 30, true, true));

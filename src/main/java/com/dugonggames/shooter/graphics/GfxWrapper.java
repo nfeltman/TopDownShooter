@@ -40,17 +40,6 @@ public class GfxWrapper {
     public void drawImage(CenteredImage image, Vector2d center) {
         gc.drawImage(image.getImage(), center.x - image.getCenter().x, center.y - image.getCenter().y);
     }
-    private void rotate(double angle, double px, double py) {
-        Rotate r = new Rotate(angle, px, py);
-        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-    }
-
-    public void drawRotatedImage(Image image, double angle, double tlpx, double tlpy) {
-        gc.save(); // saves the current state on stack, including the current transform
-        rotate(angle, tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2);
-        gc.drawImage(image, tlpx, tlpy);
-        gc.restore(); // back to original state (before rotation)
-    }
 
     public void drawRotatedImage(CenteredImage image, Rotation rotation, Vector2d location) {
         gc.save(); // saves the current state on stack, including the current transform

@@ -262,8 +262,8 @@ public class ShooterSim{
         }
 
         for (HomingMissile missile : s.homingMissiles){
-            double angle = s.location.subtract(missile.location.location).getAngle();
-            gfx.drawRotatedImage(GameImages.homingMissile.getImage(), angle + 90, missile.location.location.x, missile.location.location.y);
+            Rotation angle = Rotation.fromVectors(new Vector2d(1, 0), missile.location.location.subtract(s.location));
+            gfx.drawRotatedImage(GameImages.homingMissile, angle, missile.location.location);
         }
 
         for (RookBomb bomb : s.rookBombs){
@@ -279,8 +279,7 @@ public class ShooterSim{
         gfx.drawText("Max: " + (int) Math.floor(s.maxScore), new Vector2d(100, 20));
 
         for (Ship ship : s.ships){
-            double angle = s.location.subtract(ship.getLocation().location).getAngle();
-            ship.draw(gfx, angle);
+            ship.draw(gfx, s.location);
         }
 
         for (DropsManager.Drop drop : s.dropsManager.getCurrentDrops()){
