@@ -110,7 +110,7 @@ public class ShooterSim{
                     if (s.rookBombs.size() == 0)
                         s.rookBombs.add(new RookBomb(s.location, 2));
                 } else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED) && event.getButton().equals(MouseButton.MIDDLE)) {
-                    s.walls.add(new Wall(s.location, Rotation.fromVectors(new Vector2d(0, 1), v.subtract(s.location))));
+                    s.walls.add(new Wall(s.location, Rotation.fromVectors(new Vector2d(0, 1), v.subtract(s.location)), 5));
                 }
             }
         }
@@ -204,15 +204,19 @@ public class ShooterSim{
         s.location = s.location.add(nextMoveTo.scale(s.speed));
 
         s.bullets = s.bullets.filter(b->b.location.inBox(s.playArea));
-        Pair<EntitySet<MovingPoint>, EntitySet<Wall>> bulletWallPair = s.bullets.mapCross(s.walls, (bullet, w) -> {
-            MovingPoint b = w.angle.rotate(bullet.subtractLoc(w.location));
-            if (b.location.inBox(new Box(-10, 10, -50, 50))){
-                if (b.location.y > 0 != b.velocity.y > 0) b = new MovingPoint(b.location, new Vector2d(b.velocity.x, -b.velocity.y));
+        Pair<EntitySet<MovingPoint>, EntitySet<Wall>> bulletWallPair = s.bullets.mapCross(s.walls, (bullet, wall) -> {
+            MovingPoint b = wall.angle.rotate(bullet.subtractLoc(wall.location));
+            int health = wall.health;
+            if (b.location.inBox(new Box(-10, 10, -50, 50)) && b.location.y > 0 != b.velocity.y > 0){
+                b = new MovingPoint(b.location, new Vector2d(b.velocity.x, -b.velocity.y));
+                health--;
             }
-            return new Pair<>(Optional.of(w.angle.negate().rotate(b).addLoc(w.location)), Optional.of(w));
+            if (health <= 0) return new Pair<>(Optional.of(wall.angle.negate().rotate(b).addLoc(wall.location)), Optional.empty());
+            return new Pair<>(Optional.of(wall.angle.negate().rotate(b).addLoc(wall.location)), Optional.of(new Wall(wall.location, wall.angle, health)));
         });
         s.bullets = bulletWallPair.getA();
         s.bullets = s.bullets.map(b->b.step(dt));
+        s.walls = bulletWallPair.getB();
 
         if (s.bullets.any(b->Vector2d.distance(b.location, s.location) < 6.5 && !s.buffsManager.isActiveBuff(SHIELD_BUFF))) {
             s.bullets = new EntitySet<>();

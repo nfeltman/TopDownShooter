@@ -8,4 +8,5 @@ import lombok.AllArgsConstructor;
 public class Wall {
     Vector2d location;
     Rotation angle;
+    int health;
 }
