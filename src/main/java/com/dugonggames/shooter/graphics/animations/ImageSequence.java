@@ -1,13 +1,11 @@
 package com.dugonggames.shooter.graphics.animations;
 
 import com.dugonggames.shooter.graphics.CenteredImage;
-import com.dugonggames.shooter.graphics.GameImages;
 import com.dugonggames.shooter.graphics.GfxWrapper;
 import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 

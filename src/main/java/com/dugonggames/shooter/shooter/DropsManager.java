@@ -5,9 +5,6 @@ import com.dugonggames.shooter.util.Vector2d;
 import lombok.Getter;
 import lombok.Value;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import static com.dugonggames.shooter.shooter.DropsManager.DropType.*;
 
 @Getter

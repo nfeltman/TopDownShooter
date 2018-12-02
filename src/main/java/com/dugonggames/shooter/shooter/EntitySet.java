@@ -2,7 +2,6 @@ package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.util.Pair;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Arrays;

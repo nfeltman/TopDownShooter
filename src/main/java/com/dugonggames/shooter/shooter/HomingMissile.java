@@ -3,8 +3,6 @@ package com.dugonggames.shooter.shooter;
 import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
 
-import java.util.ArrayList;
-
 public class HomingMissile {
     MovingPoint location;
     int health;

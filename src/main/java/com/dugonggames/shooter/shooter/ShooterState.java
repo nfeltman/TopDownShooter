@@ -6,8 +6,6 @@ import com.dugonggames.shooter.util.MovingPoint;
 import com.dugonggames.shooter.util.Vector2d;
 import lombok.AllArgsConstructor;
 
-import java.util.ArrayList;
-
 @AllArgsConstructor
 public class ShooterState {
     Box playArea;

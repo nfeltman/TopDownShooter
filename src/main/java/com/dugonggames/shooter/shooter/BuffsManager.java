@@ -1,9 +1,5 @@
 package com.dugonggames.shooter.shooter;
 
-import lombok.Value;
-
-import java.util.List;
-
 public class BuffsManager {
 
     public enum BuffType {SPEED_BUFF, SHIELD_BUFF, DAMAGE_BUFF, TRIPLESHOT_BUFF, TIME_BUFF}
