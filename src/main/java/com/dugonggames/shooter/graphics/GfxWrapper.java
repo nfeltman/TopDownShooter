@@ -4,20 +4,21 @@ import com.dugonggames.shooter.util.Box;
 import com.dugonggames.shooter.util.Rotation;
 import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
-import javafx.scene.transform.Rotate;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@AllArgsConstructor
 public class GfxWrapper {
 
-    @Getter
     private GraphicsContext gc;
     public final double width;
     public final double height;
+
+    @java.beans.ConstructorProperties({"gc", "width", "height"})
+    public GfxWrapper(GraphicsContext gc, double width, double height) {
+        this.gc = gc;
+        this.width = width;
+        this.height = height;
+    }
 
     public void setColor(Color c) {
         gc.setFill(c);
@@ -51,5 +52,9 @@ public class GfxWrapper {
     }
     public void drawText(String text, Vector2d topLeft){
         gc.fillText(text, topLeft.x, topLeft.y);
+    }
+
+    public GraphicsContext getGc() {
+        return this.gc;
     }
 }
