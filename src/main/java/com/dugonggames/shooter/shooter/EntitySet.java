@@ -1,7 +1,6 @@
 package com.dugonggames.shooter.shooter;
 
 import com.dugonggames.shooter.util.Pair;
-import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
 public class EntitySet<T> implements Iterable<T>{
     private ArrayList<T> elements;
 
@@ -111,6 +109,29 @@ public class EntitySet<T> implements Iterable<T>{
 
     public String toString() {
         return elements.toString();
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof EntitySet)) return false;
+        final EntitySet<?> other = (EntitySet<?>) o;
+        if (!other.canEqual((Object) this)) return false;
+        final Object this$elements = this.elements;
+        final Object other$elements = other.elements;
+        if (this$elements == null ? other$elements != null : !this$elements.equals(other$elements)) return false;
+        return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof EntitySet;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $elements = this.elements;
+        result = result * PRIME + ($elements == null ? 43 : $elements.hashCode());
+        return result;
     }
 
     /*

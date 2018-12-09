@@ -1,15 +1,16 @@
 package com.dugonggames.shooter.util;
 
-import lombok.AllArgsConstructor;
-import lombok.ToString;
-
-@AllArgsConstructor
-@ToString
 public class Vector2d {
     public final double x;
     public final double y;
     private static final double sinpiover8 = 0.382683432365089771728459984030398866761344562485627041433;
     private static final double cospiover8 = 0.923879532511286756128183189396788286822416625863642486115;
+
+    @java.beans.ConstructorProperties({"x", "y"})
+    public Vector2d(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
 
     public Vector2d add(Vector2d vector){
         return new Vector2d(x+vector.x, y+vector.y);
@@ -82,5 +83,9 @@ public class Vector2d {
 
     public double getAngle() {
         return Math.atan(-x/y) * (180.0/Math.PI) + (y > 0 ? 180.0 : 0.0);
+    }
+
+    public String toString() {
+        return "Vector2d(x=" + this.x + ", y=" + this.y + ")";
     }
 }

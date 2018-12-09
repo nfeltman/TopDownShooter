@@ -4,8 +4,6 @@ import com.dugonggames.shooter.graphics.animations.ImageSequence;
 import com.dugonggames.shooter.util.Vector2d;
 import javafx.scene.image.Image;
 
-import java.util.ArrayList;
-
 public class GameImages {
     public static CenteredImage background;
     public static CenteredImage enemyShip;

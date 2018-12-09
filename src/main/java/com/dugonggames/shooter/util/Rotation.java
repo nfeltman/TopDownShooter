@@ -1,8 +1,5 @@
 package com.dugonggames.shooter.util;
 
-import lombok.Getter;
-
-@Getter
 public class Rotation {
 
     // always length 1
@@ -53,5 +50,13 @@ public class Rotation {
     // rotates the point around another point
     public Vector2d rotate(final Vector2d p, final Vector2d center) {
         return rotate(p.subtract(center)).add(center);
+    }
+
+    public double getX() {
+        return this.x;
+    }
+
+    public double getY() {
+        return this.y;
     }
 }

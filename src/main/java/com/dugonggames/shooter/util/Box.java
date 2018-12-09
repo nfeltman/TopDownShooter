@@ -1,7 +1,5 @@
 package com.dugonggames.shooter.util;
 
-import lombok.AllArgsConstructor;
-
 public class Box {
     public final double top, bottom, left, right;
 
